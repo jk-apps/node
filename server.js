@@ -17,7 +17,7 @@ app.use(express.json());        // for parsing application/json
 
 // ---- TextBin Instance ------
 var configTB = {
-    apiKey: "AIzaSyBLQPgC2j9okz3zU9ms2oe0foW6kXMvDj8",
+    apiKey: process.env.TBWEBAPIKEY,
     authDomain: "textbin-9ca75.firebaseapp.com",
     databaseURL: "https://textbin-9ca75.firebaseio.com",
     storageBucket: "textbin-9ca75.appspot.com"
