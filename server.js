@@ -32,8 +32,8 @@ var configWB = {
     databaseURL: "https://webal-c8223.firebaseio.com/",
     storageBucket: "webal-c8223.appspot.com"
 };
-firebase.initializeApp(configWB);
-var databaseWB = firebase.app().database();
+firebase.initializeApp(configWB, 'wbapp');
+var databaseWB = firebase.app('wbapp').database();
 
 /*******************************
  *     TextBin Endpoints
