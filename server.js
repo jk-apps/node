@@ -1,5 +1,6 @@
 var express = require('express');
 var firebaseTB = require('firebase');
+var firebaseWB = require('firebase');
 
 var server_port = process.env.PORT || 5000;
 var signup_key = process.env.SIGNUPKEY;
@@ -24,6 +25,16 @@ var configTB = {
 };
 firebaseTB.initializeApp(configTB);
 var databaseTB = firebaseTB.app().database();
+
+// ---- WeBal Instance ------
+var configWB = {
+    apiKey: process.env.WBWEBAPIKEY,
+    authDomain: "webal-c8223.firebaseapp.com",
+    databaseURL: "https://webal-c8223.firebaseio.com/",
+    storageBucket: "webal-c8223.appspot.com"
+};
+firebaseWB.initializeApp(configWB);
+var databaseWB = firebaseWB.app().database();
 
 /*******************************
  *     TextBin Endpoints
@@ -122,6 +133,28 @@ app.get('/signup', function(req, res) {
 				"modified": (new Date()).getTime() * -1
 			};
 			clipRef.child(usersRef.key).push(newData);
+			res.status(200).send('New Account Created for: ' + req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1) + '\nAccount Key: ' + usersRef.key);
+		} else if(req.param('app') == "webal" && req.param('skey') == signup_key) {
+			var rootRef = databaseWB.ref();
+			var profRef = rootRef.child('Profiles');
+			var entRef = rootRef.child('Entries');
+			var usersRef = profRef.push({
+				dispName: req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1),
+				email: req.param('user')+"@email.com",
+				entryThreshold: 130,
+				postWebData: 0,
+				preWebData: 0,
+				enabled: true,
+				quota: 20
+			});
+			var encData = new Buffer("", "utf8").toString('base64');
+			var newData = {
+				"isLocked" : false,
+				"webID": 1,
+				"webData": encData,
+				"webBal": 0
+			};
+			entRef.child(usersRef.key).push(newData);
 			res.status(200).send('New Account Created for: ' + req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1) + '\nAccount Key: ' + usersRef.key);
 		} else {
 			res.status(200).send('Invalid app or key');
