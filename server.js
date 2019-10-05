@@ -1,6 +1,5 @@
 var express = require('express');
-var firebaseTB = require('firebase');
-var firebaseWB = require('firebase');
+var firebase = require('firebase');
 
 var server_port = process.env.PORT || 5000;
 var signup_key = process.env.SIGNUPKEY;
@@ -23,8 +22,8 @@ var configTB = {
     databaseURL: "https://textbin-9ca75.firebaseio.com",
     storageBucket: "textbin-9ca75.appspot.com"
 };
-firebaseTB.initializeApp(configTB);
-var databaseTB = firebaseTB.app().database();
+firebase.initializeApp(configTB);
+var databaseTB = firebase.app().database();
 
 // ---- WeBal Instance ------
 var configWB = {
@@ -33,8 +32,8 @@ var configWB = {
     databaseURL: "https://webal-c8223.firebaseio.com/",
     storageBucket: "webal-c8223.appspot.com"
 };
-firebaseWB.initializeApp(configWB);
-var databaseWB = firebaseWB.app().database();
+firebase.initializeApp(configWB);
+var databaseWB = firebase.app().database();
 
 /*******************************
  *     TextBin Endpoints
