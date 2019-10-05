@@ -36,7 +36,7 @@ firebase.initializeApp(configWB, 'wbapp');
 var databaseWB = firebase.app('wbapp').database();
 
 /*******************************
- *     TextBin Endpoints
+ *     TEXTBIN Endpoints
  ******************************/
 app.get('/textbin/:ownkey', function(req, res) {
     var ownkey = req.params.ownkey;
@@ -108,9 +108,133 @@ app.post('/textbin/:ownkey', function(req, res) {
     }
 });
 
+/*******************************
+ *     WEBAL Endpoints
+ ******************************/
+app.get('/webal/:pkey', function(req, res) {
+	var rootRef = databaseWB.ref();
+    var profRef = rootRef.child('Profiles');
+    var entrRef = rootRef.child('Entries');
+
+    var recRef = profRef.child(req.params.pkey);
+    recRef.once('value',function(snapshot) {
+        if(snapshot != null && snapshot.val() != null) {
+            var data = snapshot.val();
+            if(data.enabled) {
+            	var retData = new Object();
+				var preData = data.preWebData;
+				var postData = data.postWebData;
+				var balance = preData;
+				
+            	var entrRecs = entrRef.child(req.params.pkey);
+                entrRecs.once('value',function(snapshot) {
+                    snapshot.forEach(function (childSnap) {
+                        var entry = childSnap.val();
+                        balance += parseFloat(entry.webBal);
+                    });
+                    balance -= postData;
+					retData.dispName = data.dispName;
+					retData.entryThreshold = data.entryThreshold;
+					retData.savings = balance;
+					res.status(200).send( JSON.stringify(retData) );
+                });
+            } else {
+                res.status(200).send('{"error":"Not Enabled"}');
+            }
+        } else {
+            res.status(200).send('{"error":"Not Found"}');
+        }
+    });
+});
+app.get('/webal/:pkey/:eid', function(req, res) {
+	var rootRef = databaseWB.ref();
+	var entrRef = rootRef.child('Entries');
+	var entrRecs = entrRef.child(req.params.pkey);
+	
+	entrRecs.once('value',function(snapshot) {
+		if(snapshot != null && snapshot.val() != null) {
+			var entryRecord;
+			snapshot.forEach(function (childSnap) {
+				var entry = childSnap.val();
+				if(entry.webID == req.params.eid) {
+					entryRecord = entry;
+				}
+			});
+			if(entryRecord == null) {
+				res.status(200).send('{"webData":"", "isLocked": false, "webThreshold": 0}');
+			} else {
+				var retVal = new Object();
+				retVal.webData = new Buffer(entryRecord.webData, 'base64').toString("utf8");
+				retVal.isLocked = entryRecord.isLocked;
+				retVal.webThreshold = entryRecord.webThreshold;
+				res.status(200).send( JSON.stringify(retVal) );
+			}
+		} else {
+			res.status(200).send('{"error":"Not Found"}');
+		}
+	});
+});
+app.post('/webal/:pkey/:eid', function(req, res) {
+	var rootRef = databaseWB.ref();
+    var profRef = rootRef.child('Profiles');
+    var entrRef = rootRef.child('Entries');
+
+    var recRef = profRef.child(req.params.pkey);
+    recRef.once('value',function(snapshot) {
+        if(snapshot != null && snapshot.val() != null) {
+            var data = snapshot.val();
+            if(!data.enabled) {
+            	res.status(200).send('{"error":"Not Enabled"}');
+            }
+            var encData = new Buffer(req.param('webData'), "utf8").toString('base64');
+            var webThreshold = parseFloat(req.param('webThreshold')).toFixed(2);
+            var webBal = parseFloat(req.param('webBal')).toFixed(2);
+            
+            var entrRecs = entrRef.child(req.params.pkey);
+            entrRecs.once('value',function(snapshot) {
+            	if(snapshot != null && snapshot.val() != null) {
+            		var entryRecord;
+					snapshot.forEach(function (childSnap) {
+						var entry = childSnap.val();
+						if(entry.webID == req.params.eid) {
+							entryRecord = entry;
+						}
+					});
+					if(entryRecord == null) {
+						var newData = {
+							"isLocked" : false,
+							"webID": req.params.eid,
+							"webThreshold": webThreshold,
+							"webData": encData,
+							"webBal": webBal
+						};
+						entRef.child(data.key).push(newData);
+					} else {
+						entryRecord.webThreshold = webThreshold;
+						entryRecord.webData = encData;
+						entryRecord.webBal = webBal;
+						entRef.child(data.key).child(entryRecord.key).set(entryRecord);
+					}
+            	} else {
+            		var newData = {
+						"isLocked" : false,
+						"webID": req.params.eid,
+						"webThreshold": webThreshold,
+						"webData": encData,
+						"webBal": webBal
+					};
+					entRef.child(data.key).push(newData);
+            	}
+            });
+        } else {
+        	res.status(200).send('{"error":"Not Found"}');
+        }
+    });
+});
+
 
 /*******************************
- *     Global Endpoints
+ *     GLOBAL Endpoints
  ******************************/
 app.get('/signup', function(req, res) {
     if(req.param('user') && req.param('app') && req.param('skey')) {
@@ -132,7 +256,7 @@ app.get('/signup', function(req, res) {
 				"modified": (new Date()).getTime() * -1
 			};
 			clipRef.child(usersRef.key).push(newData);
-			res.status(200).send('New Account Created for: ' + req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1) + '\nAccount Key: ' + usersRef.key);
+			res.status(200).send('New Account Created for: ' + req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1) + ' <br/>\nAccount Key: ' + usersRef.key);
 		} else if(req.param('app') == "webal" && req.param('skey') == signup_key) {
 			var rootRef = databaseWB.ref();
 			var profRef = rootRef.child('Profiles');
@@ -144,17 +268,18 @@ app.get('/signup', function(req, res) {
 				postWebData: 0,
 				preWebData: 0,
 				enabled: true,
-				quota: 20
+				quota: 52
 			});
 			var encData = new Buffer("", "utf8").toString('base64');
 			var newData = {
 				"isLocked" : false,
 				"webID": 1,
+				"webThreshold": 130,
 				"webData": encData,
 				"webBal": 0
 			};
 			entRef.child(usersRef.key).push(newData);
-			res.status(200).send('New Account Created for: ' + req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1) + '\nAccount Key: ' + usersRef.key);
+			res.status(200).send('New Account Created for: ' + req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1) + ' <br/>\nAccount Key: ' + usersRef.key);
 		} else {
 			res.status(200).send('Invalid app or key');
 		}
