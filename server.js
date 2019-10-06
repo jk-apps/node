@@ -192,15 +192,33 @@ app.post('/webal/:pkey/:eid', function(req, res) {
             
             var entrRecs = entrRef.child(req.params.pkey);
             entrRecs.once('value',function(snapshot) {
-            	if(snapshot != null && snapshot.val() != null) {
-            		var entryRecord;
-					snapshot.forEach(function (childSnap) {
-						var entry = childSnap.val();
-						if(entry.webID == req.params.eid) {
-							entryRecord = entry;
+            	try {
+					if(snapshot != null && snapshot.val() != null) {
+						var entryRecord;
+						snapshot.forEach(function (childSnap) {
+							var entry = childSnap.val();
+							if(entry.webID == req.params.eid) {
+								entryRecord = entry;
+							}
+						});
+						if(entryRecord == null) {
+							var newData = {
+								"isLocked" : false,
+								"webID": req.params.eid,
+								"webThreshold": webThreshold,
+								"webData": encData,
+								"webBal": webBal
+							};
+							entrRef.child(req.params.pkey).push(newData);
+							res.status(200).send('{"success":true}');
+						} else {
+							entryRecord.webThreshold = webThreshold;
+							entryRecord.webData = encData;
+							entryRecord.webBal = webBal;
+							entrRef.child(req.params.pkey).child(req.params.eid).set(entryRecord);
+							res.status(200).send('{"success":true}');
 						}
-					});
-					if(entryRecord == null) {
+					} else {
 						var newData = {
 							"isLocked" : false,
 							"webID": req.params.eid,
@@ -209,22 +227,11 @@ app.post('/webal/:pkey/:eid', function(req, res) {
 							"webBal": webBal
 						};
 						entrRef.child(req.params.pkey).push(newData);
-					} else {
-						entryRecord.webThreshold = webThreshold;
-						entryRecord.webData = encData;
-						entryRecord.webBal = webBal;
-						entrRef.child(req.params.pkey).child(req.params.eid).set(entryRecord);
+						res.status(200).send('{"success":true}');
 					}
-            	} else {
-            		var newData = {
-						"isLocked" : false,
-						"webID": req.params.eid,
-						"webThreshold": webThreshold,
-						"webData": encData,
-						"webBal": webBal
-					};
-					entrRef.child(req.params.pkey).push(newData);
-            	}
+				} catch(e) {
+					res.status(200).send('{"error":"Unable to set values " + ' + e + '}');
+				}
             });
         } else {
         	res.status(200).send('{"error":"Not Found"}');
