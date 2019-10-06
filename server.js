@@ -170,7 +170,7 @@ app.get('/webal/:pkey/:eid', function(req, res) {
 				res.status(200).send( JSON.stringify(retVal) );
 			}
 		} else {
-			res.status(200).send('{"error":"Not Found"}');
+			res.status(200).send('{"webData":"", "isLocked": false, "webThreshold": 0}');
 		}
 	});
 });
@@ -213,7 +213,7 @@ app.post('/webal/:pkey/:eid', function(req, res) {
 							entrRef.child(req.params.pkey).push(newData);
 							res.status(200).send('{"success":true}');
 						} else {
-							if(req.param('webData') && req.param('webData') != "") {
+							if(req.param('webData') != "") {
 								entryRecord.webThreshold = webThreshold;
 								entryRecord.webData = encData;
 								entryRecord.webBal = webBal;
