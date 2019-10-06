@@ -215,7 +215,7 @@ app.post('/webal/:pkey/:eid', function(req, res) {
 							entryRecord.webThreshold = webThreshold;
 							entryRecord.webData = encData;
 							entryRecord.webBal = webBal;
-							entrRef.child(req.params.pkey).child(entryRecord.key).set(entryRecord);
+							entrRef.child(req.params.pkey).set(entryRecord);
 							res.status(200).send('{"success":true}');
 						}
 					} else {
