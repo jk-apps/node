@@ -202,7 +202,7 @@ app.post('/webal/:pkey/:eid', function(req, res) {
 								entryKey = childSnap.key;
 							}
 						});
-						if(entryRecord == null) {
+						if(entryRecord == null && req.param('webData') != "") {
 							var newData = {
 								"isLocked" : false,
 								"webID": req.params.eid,
@@ -213,10 +213,14 @@ app.post('/webal/:pkey/:eid', function(req, res) {
 							entrRef.child(req.params.pkey).push(newData);
 							res.status(200).send('{"success":true}');
 						} else {
-							entryRecord.webThreshold = webThreshold;
-							entryRecord.webData = encData;
-							entryRecord.webBal = webBal;
-							entrRef.child(req.params.pkey).child(entryKey).set(entryRecord);
+							if(req.param('webData') && req.param('webData') != "") {
+								entryRecord.webThreshold = webThreshold;
+								entryRecord.webData = encData;
+								entryRecord.webBal = webBal;
+								entrRef.child(req.params.pkey).child(entryKey).set(entryRecord);
+							} else {
+								entrRef.child(req.params.pkey).child(entryKey).remove();
+							}
 							res.status(200).send('{"success":true}');
 						}
 					} else {
