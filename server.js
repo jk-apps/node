@@ -208,12 +208,12 @@ app.post('/webal/:pkey/:eid', function(req, res) {
 							"webData": encData,
 							"webBal": webBal
 						};
-						entrRef.child(data.key).push(newData);
+						entrRef.child(req.params.pkey).push(newData);
 					} else {
 						entryRecord.webThreshold = webThreshold;
 						entryRecord.webData = encData;
 						entryRecord.webBal = webBal;
-						entrRef.child(data.key).child(entryRecord.key).set(entryRecord);
+						entrRef.child(req.params.pkey).child(req.params.eid).set(entryRecord);
 					}
             	} else {
             		var newData = {
@@ -223,7 +223,7 @@ app.post('/webal/:pkey/:eid', function(req, res) {
 						"webData": encData,
 						"webBal": webBal
 					};
-					entrRef.child(data.key).push(newData);
+					entrRef.child(req.params.pkey).push(newData);
             	}
             });
         } else {
