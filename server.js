@@ -194,11 +194,12 @@ app.post('/webal/:pkey/:eid', function(req, res) {
             entrRecs.once('value',function(snapshot) {
             	try {
 					if(snapshot != null && snapshot.val() != null) {
-						var entryRecord;
+						var entryRecord, entryKey;
 						snapshot.forEach(function (childSnap) {
 							var entry = childSnap.val();
 							if(entry.webID == req.params.eid) {
 								entryRecord = entry;
+								entryKey = childSnap.key;
 							}
 						});
 						if(entryRecord == null) {
@@ -215,7 +216,7 @@ app.post('/webal/:pkey/:eid', function(req, res) {
 							entryRecord.webThreshold = webThreshold;
 							entryRecord.webData = encData;
 							entryRecord.webBal = webBal;
-							entrRef.child(req.params.pkey).child(entryRecord.key).set(entryRecord);
+							entrRef.child(req.params.pkey).child(entryKey).set(entryRecord);
 							res.status(200).send('{"success":true}');
 						}
 					} else {
