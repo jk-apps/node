@@ -1,5 +1,6 @@
 var express = require('express');
 var firebase = require('firebase');
+var https = require('https');
 
 var server_port = process.env.PORT || 5000;
 var signup_key = process.env.SIGNUPKEY;
@@ -244,6 +245,50 @@ app.post('/webal/:pkey/:eid', function(req, res) {
     });
 });
 
+/*******************************
+ *     PaymentJS Endpoints
+ ******************************/
+app.get('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
+    var inskey = req.params.inskey;
+    if(inskey == "tdprodnam")
+	    res.status(200).send('{"status":"OK"}');
+	else
+		res.status(404).send('{"status":"NOTFOUND"}');
+});
+app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
+    var inskey = req.params.inskey;
+    if(inskey == "tdprodnam" && req.header('Client-Token') != "" && req.header('nonce') != "") {
+    	var data = req.body;
+    	var respCode = 200;
+    	var options = {
+		  hostname: 'production-nam-torrid.demandware.net',
+		  port: 443,
+		  path: '/s/torrid/payeezyAuthResponse',
+		  method: 'POST',
+		  headers: {
+			'Content-Type': req.header('Content-Type'),
+			'Client-Token': req.header('Client-Token'),
+			'nonce': req.header('nonce'),
+			'Authorization': 'Basic c3RvcmVmcm9udDp0YWNvczIwMTg=',
+			'Content-Length': data.length
+		  }
+		}
+		var req = https.request(options, (res) => {
+			respCode = res.statusCode;
+			res.on('data', (d) => {
+				res.status(respCode).send(d);
+			});
+		});
+		req.on('error', (error) => {
+			console.error(error);
+			res.status(500).send('{"status":"ERROR"}');
+		});
+		req.write(data);
+		req.end();
+    } else {
+    	res.status(500).send('{"status":"ERROR"}');
+    }
+});
 
 /*******************************
  *     GLOBAL Endpoints
