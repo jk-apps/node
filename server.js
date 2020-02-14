@@ -39,7 +39,7 @@ var databaseWB = firebase.app('wbapp').database();
 /*******************************
  *     TEXTBIN Endpoints
  ******************************/
-/*app.get('/textbin/:ownkey', function(req, res) {
+app.get('/textbin/:ownkey', function(req, res) {
     var ownkey = req.params.ownkey;
     var rootRef = databaseTB.ref();
     var ownerRef = rootRef.child('Owners');
@@ -107,12 +107,12 @@ app.post('/textbin/:ownkey', function(req, res) {
         dataRef.remove();
         res.redirect('/textbin/'+ownkey);
     }
-});*/
+});
 
 /*******************************
  *     WEBAL Endpoints
  ******************************/
-/*app.get('/webal/:pkey', function(req, res) {
+app.get('/webal/:pkey', function(req, res) {
 	var rootRef = databaseWB.ref();
     var profRef = rootRef.child('Profiles');
     var entrRef = rootRef.child('Entries');
@@ -243,7 +243,7 @@ app.post('/webal/:pkey/:eid', function(req, res) {
         	res.status(200).send('{"error":"Not Found"}');
         }
     });
-});*/
+});
 
 /*******************************
  *     PaymentJS Endpoints
@@ -260,26 +260,34 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
     if(inskey == "tdprodnam" && req.header('Client-Token') != "" && req.header('nonce') != "") {
     	var data = req.body;
     	var respCode = 200;
+	var hostName = "production-nam-torrid.demandware.net";
+	var basicAuth = "c3RvcmVmcm9udDp0YWNvczIwMTg=";
+	var proxyPath = "/s/torrid/payeezyAuthResponse";
+	if(inskey == "tdprodnam") {
+		hostName = "production-nam-torrid.demandware.net";
+		basicAuth = "c3RvcmVmcm9udDp0YWNvczIwMTg=";
+		proxyPath = "/s/torrid/payeezyAuthResponse";
+	}
     	var options = {
-		  hostname: 'production-nam-torrid.demandware.net',
+		  hostname: hostName,
 		  port: 443,
-		  path: '/s/torrid/payeezyAuthResponse',
+		  path: proxyPath,
 		  method: 'POST',
 		  headers: {
 			'Content-Type': req.header('Content-Type'),
 			'Client-Token': req.header('Client-Token'),
 			'nonce': req.header('nonce'),
-			'Authorization': 'Basic c3RvcmVmcm9udDp0YWNvczIwMTg=',
+			'Authorization': 'Basic ' + basicAuth,
 			'Content-Length': data.length
 		  }
 		};
-		var req = https.request(options, (res) => {
+		var req = https.request(options, function(res) {
 			respCode = res.statusCode;
-			res.on('data', (d) => {
+			res.on('data', function(d) {
 				res.status(respCode).send(d);
 			});
 		});
-		req.on('error', (error) => {
+		req.on('error', function(error) {
 			console.error(error);
 			res.status(500).send('{"status":"ERROR"}');
 		});
@@ -293,7 +301,7 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 /*******************************
  *     GLOBAL Endpoints
  ******************************/
-/*app.get('/signup', function(req, res) {
+app.get('/signup', function(req, res) {
     if(req.param('user') && req.param('app') && req.param('skey')) {
     	if(req.param('app') == "textbin" && req.param('skey') == signup_key) {
 			var rootRef = databaseTB.ref();
@@ -343,7 +351,7 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
     } else {
     	res.status(200).send('Missing required data');
     }
-});*/
+});
 app.get('/', function(req, res) {
    res.status(200).send('<br/><center><h2>Welcome to JK\'s Node module Home</h2><p>Well, there\'s nothing to view here...</p></center>');
 });
