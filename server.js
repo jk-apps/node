@@ -248,7 +248,7 @@ app.post('/webal/:pkey/:eid', function(req, res) {
 /*******************************
  *     PaymentJS Endpoints
  ******************************/
-/*app.get('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
+app.get('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
     var inskey = req.params.inskey;
     if(inskey == "tdprodnam")
 	    res.status(200).send('{"status":"OK"}');
@@ -288,7 +288,7 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
     } else {
     	res.status(500).send('{"status":"ERROR"}');
     }
-});*/
+});
 
 /*******************************
  *     GLOBAL Endpoints
