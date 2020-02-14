@@ -13,9 +13,8 @@ app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
-app.use(express.urlencoded());  // for parsing application/x-www-form-urlencoded
-app.use(express.json());        // for parsing application/json
-app.use(express.text());	// for parsing raw data
+app.use(express.urlencoded());    // for parsing application/x-www-form-urlencoded
+//app.use(express.json());        // for parsing application/json (otherwise use JSON.parse on the raw body)
 
 // ---- TextBin Instance ------
 var configTB = {
