@@ -255,10 +255,10 @@ app.get('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 	else
 		res.status(404).send('{"status":"NOTFOUND"}');
 });
-app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
+/*app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
     var inskey = req.params.inskey;
     if(inskey == "tdprodnam" && req.header('Client-Token') != "" && req.header('nonce') != "") {
-    	/*var data = req.body;
+    	var data = req.body;
     	var respCode = 200;
     	var options = {
 		  hostname: 'production-nam-torrid.demandware.net',
@@ -284,11 +284,11 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 			res.status(500).send('{"status":"ERROR"}');
 		});
 		req.write(data);
-		req.end();*/
+		req.end();
     } else {
     	res.status(500).send('{"status":"ERROR"}');
     }
-});
+});*/
 
 /*******************************
  *     GLOBAL Endpoints
