@@ -248,14 +248,14 @@ app.post('/webal/:pkey/:eid', function(req, res) {
 /*******************************
  *     PaymentJS Endpoints
  ******************************/
-app.get('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
+/*app.get('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
     var inskey = req.params.inskey;
     if(inskey == "tdprodnam")
 	    res.status(200).send('{"status":"OK"}');
 	else
 		res.status(404).send('{"status":"NOTFOUND"}');
 });
-/*app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
+app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
     var inskey = req.params.inskey;
     if(inskey == "tdprodnam" && req.header('Client-Token') != "" && req.header('nonce') != "") {
     	var data = req.body;
