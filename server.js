@@ -281,6 +281,7 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 			'Content-Length': data.length
 		  }
 		};
+	    console.log(options);
 		var req = https.request(options, function(res) {
 			respCode = res.statusCode;
 			res.on('data', function(d) {
