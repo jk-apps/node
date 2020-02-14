@@ -14,6 +14,7 @@ app.use(function(req, res, next) {
     next();
 });
 app.use(express.urlencoded());    // for parsing application/x-www-form-urlencoded
+app.use(express.bodyParser());
 //app.use(express.json());        // for parsing application/json (otherwise use JSON.parse on the raw body)
 
 // ---- TextBin Instance ------
