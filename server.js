@@ -1,5 +1,5 @@
 var express = require('express');
-//var firebase = require('firebase');
+var firebase = require('firebase');
 var https = require('https');
 
 var server_port = process.env.PORT || 5000;
@@ -17,7 +17,7 @@ app.use(express.urlencoded());  // for parsing application/x-www-form-urlencoded
 app.use(express.json());        // for parsing application/json
 
 // ---- TextBin Instance ------
-/*var configTB = {
+var configTB = {
     apiKey: process.env.TBWEBAPIKEY,
     authDomain: "textbin-9ca75.firebaseapp.com",
     databaseURL: "https://textbin-9ca75.firebaseio.com",
@@ -34,7 +34,7 @@ var configWB = {
     storageBucket: "webal-c8223.appspot.com"
 };
 firebase.initializeApp(configWB, 'wbapp');
-var databaseWB = firebase.app('wbapp').database();*/
+var databaseWB = firebase.app('wbapp').database();
 
 /*******************************
  *     TEXTBIN Endpoints
