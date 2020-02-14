@@ -247,7 +247,7 @@ app.post('/webal/:pkey/:eid', function(req, res) {
 
 /*******************************
  *     PaymentJS Endpoints
- ******************************
+ ******************************/
 app.get('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
     var inskey = req.params.inskey;
     if(inskey == "tdprodnam")
