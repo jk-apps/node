@@ -15,6 +15,7 @@ app.use(function(req, res, next) {
 });
 app.use(express.urlencoded());  // for parsing application/x-www-form-urlencoded
 app.use(express.json());        // for parsing application/json
+app.use(express.text());	// for parsing raw data
 
 // ---- TextBin Instance ------
 var configTB = {
@@ -281,7 +282,7 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 			'Content-Length': data.length
 		  }
 		};
-	    console.log(options);
+	    console.log(data);
 		var req = https.request(options, function(res) {
 			respCode = res.statusCode;
 			res.on('data', function(d) {
