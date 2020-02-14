@@ -258,7 +258,7 @@ app.get('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
     var inskey = req.params.inskey;
     if(inskey == "tdprodnam" && req.header('Client-Token') != "" && req.header('nonce') != "") {
-    	var data = req.body;
+    	/*var data = req.body;
     	var respCode = 200;
     	var options = {
 		  hostname: 'production-nam-torrid.demandware.net',
@@ -272,7 +272,7 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 			'Authorization': 'Basic c3RvcmVmcm9udDp0YWNvczIwMTg=',
 			'Content-Length': data.length
 		  }
-		}
+		};
 		var req = https.request(options, (res) => {
 			respCode = res.statusCode;
 			res.on('data', (d) => {
@@ -284,7 +284,7 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 			res.status(500).send('{"status":"ERROR"}');
 		});
 		req.write(data);
-		req.end();
+		req.end();*/
     } else {
     	res.status(500).send('{"status":"ERROR"}');
     }
