@@ -1,5 +1,5 @@
 var express = require('express');
-var firebase = require('firebase');
+//var firebase = require('firebase');
 var https = require('https');
 
 var server_port = process.env.PORT || 5000;
@@ -17,7 +17,7 @@ app.use(express.urlencoded());  // for parsing application/x-www-form-urlencoded
 app.use(express.json());        // for parsing application/json
 
 // ---- TextBin Instance ------
-var configTB = {
+/*var configTB = {
     apiKey: process.env.TBWEBAPIKEY,
     authDomain: "textbin-9ca75.firebaseapp.com",
     databaseURL: "https://textbin-9ca75.firebaseio.com",
@@ -34,12 +34,12 @@ var configWB = {
     storageBucket: "webal-c8223.appspot.com"
 };
 firebase.initializeApp(configWB, 'wbapp');
-var databaseWB = firebase.app('wbapp').database();
+var databaseWB = firebase.app('wbapp').database();*/
 
 /*******************************
  *     TEXTBIN Endpoints
  ******************************/
-app.get('/textbin/:ownkey', function(req, res) {
+/*app.get('/textbin/:ownkey', function(req, res) {
     var ownkey = req.params.ownkey;
     var rootRef = databaseTB.ref();
     var ownerRef = rootRef.child('Owners');
@@ -107,12 +107,12 @@ app.post('/textbin/:ownkey', function(req, res) {
         dataRef.remove();
         res.redirect('/textbin/'+ownkey);
     }
-});
+});*/
 
 /*******************************
  *     WEBAL Endpoints
  ******************************/
-app.get('/webal/:pkey', function(req, res) {
+/*app.get('/webal/:pkey', function(req, res) {
 	var rootRef = databaseWB.ref();
     var profRef = rootRef.child('Profiles');
     var entrRef = rootRef.child('Entries');
@@ -243,7 +243,7 @@ app.post('/webal/:pkey/:eid', function(req, res) {
         	res.status(200).send('{"error":"Not Found"}');
         }
     });
-});
+});*/
 
 /*******************************
  *     PaymentJS Endpoints
@@ -293,7 +293,7 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 /*******************************
  *     GLOBAL Endpoints
  ******************************/
-app.get('/signup', function(req, res) {
+/*app.get('/signup', function(req, res) {
     if(req.param('user') && req.param('app') && req.param('skey')) {
     	if(req.param('app') == "textbin" && req.param('skey') == signup_key) {
 			var rootRef = databaseTB.ref();
@@ -343,7 +343,7 @@ app.get('/signup', function(req, res) {
     } else {
     	res.status(200).send('Missing required data');
     }
-});
+});*/
 app.get('/', function(req, res) {
    res.status(200).send('<br/><center><h2>Welcome to JK\'s Node module Home</h2><p>Well, there\'s nothing to view here...</p></center>');
 });
