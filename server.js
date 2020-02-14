@@ -279,7 +279,7 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 			'Client-Token': req.header('Client-Token'),
 			'nonce': req.header('nonce'),
 			'Authorization': 'Basic ' + basicAuth,
-			'Content-Length': data.length
+			'Content-Length': req.header('Content-Length')
 		  }
 		};
 	    console.log(data);
