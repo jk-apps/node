@@ -1,6 +1,6 @@
 var express = require('express');
 var firebase = require('firebase');
-//var https = require('https');
+var https = require('https');
 
 var server_port = process.env.PORT || 5000;
 var signup_key = process.env.SIGNUPKEY;
