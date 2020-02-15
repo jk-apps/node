@@ -289,7 +289,7 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 				resData = resData + d + '\n';
 			});
 			resp.on('end', function() {
-				res.status(respCode).send(resData);
+				res.end(resData);
 			});
 		});
 		reqs.on('error', function(error) {
