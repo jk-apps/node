@@ -282,13 +282,13 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 			'Content-Length': req.header('Content-Length')
 		  }
 		};
-		var req = https.request(options, function(res) {
-			respCode = res.statusCode;
+		var req = https.request(options, function(resp) {
+			respCode = resp.statusCode;
 			var resData = "";
-			res.on('data', function(d) {
+			resp.on('data', function(d) {
 				resData = resData + d + '\n';
 			});
-			res.on('end', function() {
+			resp.on('end', function() {
 				res.status(respCode).send(resData);
 			});
 		});
