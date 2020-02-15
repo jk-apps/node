@@ -282,7 +282,7 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 			'Content-Length': req.header('Content-Length')
 		  }
 		};
-		var req = https.request(options, function(resp) {
+		var reqs = https.request(options, function(resp) {
 			respCode = resp.statusCode;
 			var resData = "";
 			resp.on('data', function(d) {
@@ -292,12 +292,12 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 				res.status(respCode).send(resData);
 			});
 		});
-		req.on('error', function(error) {
+		reqs.on('error', function(error) {
 			console.error(error);
 			res.status(500).send('{"status":"ERROR"}');
 		});
-		req.write(data);
-		req.end();
+		reqs.write(data);
+		reqs.end();
     } else {
     	res.status(500).send('{"status":"ERROR"}');
     }
