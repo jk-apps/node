@@ -289,11 +289,12 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 				resData = resData + d + '\n';
 			});
 			resp.on('end', function() {
+				res.writeHead(respCode);
 				res.end(resData);
 			});
 		});
 		reqs.on('error', function(error) {
-			console.error(error);
+			console.error("ERROR -> " + error);
 			res.status(500).send('{"status":"ERROR"}');
 		});
 		reqs.write(data);
