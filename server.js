@@ -282,11 +282,11 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 			'Content-Length': req.header('Content-Length')
 		  }
 		};
-	    console.log(data);
+	    console.log(options);
 		var req = https.request(options, function(res) {
 			respCode = res.statusCode;
 			res.on('data', function(d) {
-				res.status(respCode).send(d);
+				res.status(respCode).send(d + '\n');
 			});
 		});
 		req.on('error', function(error) {
