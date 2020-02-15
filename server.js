@@ -282,7 +282,7 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 			'Content-Length': req.header('Content-Length')
 		  }
 		};
-		var reqs = https.request(options, async function(resp, next) {
+		var reqs = https.request(options, async function(resp) {
 			try {
 				respCode = resp.statusCode;
 				var resData = "";
