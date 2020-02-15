@@ -8,7 +8,7 @@ var signup_key = process.env.SIGNUPKEY;
 var app = express();
 
 const asyncMiddleware = function(req, res, next) {
-    Promise.resolve(function(req, res, next)).catch(next);
+    Promise.resolve(function(req, res, next){}).catch(next);
 };
 
 // ---- To allow CORS -----
