@@ -1,7 +1,7 @@
 {
-    "name":"nodeapp",
-    "version":"1.0.0",
-    "description":"Node Proxy",
+    "name": "nodeapp",
+    "version": "1.0.0",
+    "description": "Node Proxy",
     "main": "server.js",
     "scripts": {
         "start": "node server.js"
@@ -10,8 +10,8 @@
         "node": "0.12.0"
     },
     "dependencies": {
-        "express":"3.11.x",
-        "firebase":"3.x.x",
+        "express": "3.11.x",
+        "firebase": "3.x.x",
         "request": "2.x.x",
         "request-promise-native": "1.x.x"
     }
