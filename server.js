@@ -282,16 +282,19 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 			'Content-Length': req.header('Content-Length')
 		  }
 		};
-		var reqs = https.request(options, function(resp) {
-			respCode = resp.statusCode;
-			var resData = "";
-			resp.on('data', function(d) {
-				resData = resData + d + '\n';
-			});
-			resp.on('end', function() {
-				res.writeHead(respCode);
-				res.end(resData);
-			});
+		var reqs = https.request(options, async function(resp, next) {
+			try {
+				respCode = resp.statusCode;
+				var resData = "";
+				resp.on('data', function(d) {
+					resData = resData + d + '\n';
+				});
+				resp.on('end', function() {
+					res.status(respCode).send(resData);
+				});
+			} catch(e) {
+				res.status(500).send('{"status":"ERROR"}');
+			}
 		});
 		reqs.on('error', function(error) {
 			console.error("ERROR -> " + error);
