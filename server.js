@@ -269,39 +269,46 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 		basicAuth = "c3RvcmVmcm9udDp0YWNvczIwMTg=";
 		proxyPath = "/s/torrid/payeezyAuthResponse";
 	}
-    	var options = {
-		  hostname: hostName,
-		  port: 443,
-		  path: proxyPath,
-		  method: 'POST',
-		  headers: {
-			'Content-Type': req.header('Content-Type'),
-			'Client-Token': req.header('Client-Token'),
-			'nonce': req.header('nonce'),
-			'Authorization': 'Basic ' + basicAuth,
-			'Content-Length': req.header('Content-Length')
-		  }
-		};
-		var reqs = https.request(options, async function(resp) {
-			try {
-				respCode = resp.statusCode;
-				var resData = "";
-				resp.on('data', function(d) {
-					resData = resData + d + '\n';
-				});
-				resp.on('end', function() {
-					res.status(respCode).send(resData);
-				});
-			} catch(e) {
-				res.status(500).send('{"status":"ERROR"}');
-			}
+	
+	var doRequest = function(options, data) {
+	  return new Promise(function(resolve, reject) {
+		var reqs = https.request(options, function(resp) {
+			var respCode = resp.statusCode;
+			var resData = "";
+			resp.on('data', function(d) {
+				resData = resData + d + '\n';
+			});
+			resp.on('end', resolve(respCode, resData));
 		});
-		reqs.on('error', function(error) {
-			console.error("ERROR -> " + error);
-			res.status(500).send('{"status":"ERROR"}');
-		});
+		reqs.on('error', reject(error));
 		reqs.write(data);
 		reqs.end();
+	  });
+	};
+	
+	var resolve = function(code, data) {
+		res.status(code).send(data);
+	};
+	
+	var reject = function(err) {
+		console.error("ERROR -> " + err);
+		res.status(500).send('{"status":"ERROR"}');
+	};
+	    
+    	var options = {
+	  hostname: hostName,
+	  port: 443,
+	  path: proxyPath,
+	  method: 'POST',
+	  headers: {
+		'Content-Type': req.header('Content-Type'),
+		'Client-Token': req.header('Client-Token'),
+		'nonce': req.header('nonce'),
+		'Authorization': 'Basic ' + basicAuth,
+		'Content-Length': req.header('Content-Length')
+	  }
+	};
+	await doRequest(options, data);		
     } else {
     	res.status(500).send('{"status":"ERROR"}');
     }
