@@ -1,15 +1,11 @@
 var express = require('express');
 var firebase = require('firebase');
-var https = require('https');
+var rp = require('request-promise-native');
 
 var server_port = process.env.PORT || 5000;
 var signup_key = process.env.SIGNUPKEY;
 
 var app = express();
-
-const asyncMiddleware = function(req, res, next) {
-    Promise.resolve(function(req, res, next){}).catch(next);
-};
 
 // ---- To allow CORS -----
 app.use(function(req, res, next) {
@@ -260,41 +256,19 @@ app.get('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
     else
 	    res.status(404).send('{"status":"NOTFOUND"}');
 });
-app.post('/pjsproxy/:inskey/PayeezyResponse', asyncMiddleware(async function(req, res, next) {
-    var inskey = req.params.inskey;
-    var sendPost = function(options, data) {
-        var reqs = https.request(options, function(resp) {
-		var respCode = resp.statusCode;
-		var resData = "";
-		resp.on('data', function(d) {
-			resData = resData + d + '\n';
-		});
-		resp.on('end', function() {
-			return resData;
-        });
-        reqs.on('error', function(error) {
-            console.error("ERROR -> " + error);
-            return error;
-        });
-        reqs.write(data);
-        reqs.end();
-    };
-    
+app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res, next) {
+    var inskey = req.params.inskey;    
     if(inskey == "tdprodnam" && req.header('Client-Token') != "" && req.header('nonce') != "") {
     	var data = req.body;
     	var respCode = 200;
-        var hostName = "production-nam-torrid.demandware.net";
+        var reqUri = "https://production-nam-torrid.demandware.net/s/torrid/payeezyAuthResponse";
         var basicAuth = "c3RvcmVmcm9udDp0YWNvczIwMTg=";
-        var proxyPath = "/s/torrid/payeezyAuthResponse";
         if(inskey == "tdprodnam") {
-            hostName = "production-nam-torrid.demandware.net";
+            reqUri = "https://production-nam-torrid.demandware.net/s/torrid/payeezyAuthResponse";
             basicAuth = "c3RvcmVmcm9udDp0YWNvczIwMTg=";
-            proxyPath = "/s/torrid/payeezyAuthResponse";
         }
         var options = {
-          hostname: hostName,
-          port: 443,
-          path: proxyPath,
+          uri: reqUri,
           method: 'POST',
           headers: {
             'Content-Type': req.header('Content-Type'),
@@ -302,11 +276,15 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', asyncMiddleware(async function(req
             'nonce': req.header('nonce'),
             'Authorization': 'Basic ' + basicAuth,
             'Content-Length': req.header('Content-Length')
-          }
+          },
+	  body : data,
+	  json: true
         };
-        res.status(200).send(await sendPost(options, data));
-	} else {
-        res.status(500).send('{"status":"ERROR"}');
+	rp(options).then(function (parsedBody) {
+		res.status(200).send(parsedBody);
+    	}).catch(function (err) {
+		res.status(500).send('{"status":"ERROR"}');
+    	});
     }
 });
 
