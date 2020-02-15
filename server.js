@@ -286,7 +286,7 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 			respCode = res.statusCode;
 			var resData = "";
 			res.on('data', function(d) {
-				resData+ = d + '\n';
+				resData = resData + d + '\n';
 			});
 			res.on('end', function() {
 				res.status(respCode).send(resData);
