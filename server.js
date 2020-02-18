@@ -259,15 +259,12 @@ app.get('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
 });
 app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res, next) {
     var inskey = req.params.inskey;    
-    if(inskey == "tdprodnam" && req.header('Client-Token') != "" && req.header('nonce') != "") {
+    if(pjsConfigObj.hasOwnProperty(inskey) && req.header('Client-Token') != "" && req.header('nonce') != "") {
+    	var config = pjsConfigObj[inskey];
     	var data = req.body;
     	var respCode = 200;
-        var reqUri = "https://production-nam-torrid.demandware.net/s/torrid/payeezyAuthResponse";
-        var basicAuth = "c3RvcmVmcm9udDp0YWNvczIwMTg=";
-        if(inskey == "tdprodnam") {
-            reqUri = "https://production-nam-torrid.demandware.net/s/torrid/payeezyAuthResponse";
-            basicAuth = "c3RvcmVmcm9udDp0YWNvczIwMTg=";
-        }
+        var reqUri = config.reqUri;
+        var basicAuth = config.basicAuth;
         var options = {
           uri: reqUri,
           method: 'POST',
@@ -278,13 +275,13 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res, next) {
             'Authorization': 'Basic ' + basicAuth,
             'Content-Length': req.header('Content-Length')
           },
-	  body : data,
-	  json: true
+		  body : data,
+		  json: true
         };
-	rp(options).then(function (parsedBody) {
-		res.status(200).send(parsedBody);
+		rp(options).then(function (parsedBody) {
+			res.status(200).send(parsedBody);
     	}).catch(function (err) {
-		res.status(500).send('{"status":"ERROR"}');
+			res.status(500).send('{"status":"ERROR"}');
     	});
     }
 });
