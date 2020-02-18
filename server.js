@@ -283,6 +283,8 @@ app.post('/pjsproxy/:inskey/PayeezyResponse', function(req, res, next) {
     	}).catch(function (err) {
 			res.status(500).send('{"status":"ERROR"}');
     	});
+    } else {
+	    res.status(500).send('{"status":"ERROR"}');
     }
 });
 
