@@ -4,6 +4,7 @@ var rp = require('request-promise-native');
 
 var server_port = process.env.PORT || 5000;
 var signup_key = process.env.SIGNUPKEY;
+var pjsConfigObj = JSON.parse(process.env.PJSPROXYCONFIG);
 
 var app = express();
 
@@ -194,7 +195,7 @@ app.post('/webal/:pkey/:eid', function(req, res) {
             
             var entrRecs = entrRef.child(req.params.pkey);
             entrRecs.once('value',function(snapshot) {
-            	try {
+				try {
 					if(snapshot != null && snapshot.val() != null) {
 						var entryRecord, entryKey;
 						snapshot.forEach(function (childSnap) {
@@ -251,7 +252,7 @@ app.post('/webal/:pkey/:eid', function(req, res) {
  ******************************/
 app.get('/pjsproxy/:inskey/PayeezyResponse', function(req, res) {
     var inskey = req.params.inskey;
-    if(inskey == "tdprodnam")
+    if(pjsConfigObj.hasOwnProperty(inskey))
 	    res.status(200).send('{"status":"OK"}');
     else
 	    res.status(404).send('{"status":"NOTFOUND"}');
