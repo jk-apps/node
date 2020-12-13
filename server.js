@@ -15,31 +15,26 @@ app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
-app.use(express.urlencoded());    // for parsing application/x-www-form-urlencoded
+app.use(express.urlencoded());
 app.use(express.bodyParser());
-//app.use(express.json());        // for parsing application/json (otherwise use JSON.parse on the raw body)
 
 // ---- TextBin Instance ------
-var configTB = {
-    apiKey: process.env.TBWEBAPIKEY,
-    authDomain: "textbin-9ca75.firebaseapp.com",
-    databaseURL: "https://textbin-9ca75.firebaseio.com",
-    storageBucket: "textbin-9ca75.appspot.com"
-};
+var configTB = JSON.parse(process.env.TBFIREBASECONFIG);
 firebase.initializeApp(configTB);
 var databaseTB = firebase.app().database();
 var authTB = firebase.app().auth();
 
 // ---- WeBal Instance ------
-var configWB = {
-    apiKey: process.env.WBWEBAPIKEY,
-    authDomain: "webal-c8223.firebaseapp.com",
-    databaseURL: "https://webal-c8223.firebaseio.com/",
-    storageBucket: "webal-c8223.appspot.com"
-};
+var configWB = JSON.parse(process.env.WBFIREBASECONFIG);
 firebase.initializeApp(configWB, 'wbapp');
 var databaseWB = firebase.app('wbapp').database();
 var authWB = firebase.app('wbapp').auth();
+
+// ---- AgendaList Instance ------
+var configAL = JSON.parse(process.env.ALFIREBASECONFIG);
+firebase.initializeApp(configAL, 'alapp');
+var databaseAL = firebase.app('alapp').database();
+var authAL = firebase.app('alapp').auth();
 
 /*******************************
  *     TEXTBIN Endpoints
@@ -278,6 +273,32 @@ app.post('/webal/:pkey/:eid', function(req, res) {
 		res.status(200).send('{"error":"Access Denied"}');
 	});
 });
+
+/*******************************
+ *     App Proxy Endpoints
+ ******************************/
+app.get('/getapp/:appsrc/:appname', function(req, res) {
+    var appSrc = req.params.appsrc;
+    var appName = req.params.appname;
+    var reqUri = "";
+    if(appSrc == "sfnet") {
+    	reqUri = "https://svn.code.sf.net/p/jk9/code/trunk/jsapps/" + appName + ".htm";
+    }
+    var options = {
+	  uri: reqUri,
+	  method: 'GET'
+	};
+	if(reqUri != "") {
+		rp(options).then(function (parsedBody) {
+			res.status(200).send(parsedBody);
+		}).catch(function (err) {
+			res.status(200).send('<h3><font color="red">Error 500: </font>An error occurred loading the requested app</h3>');
+		});
+	} else {
+		res.status(200).send('<h3><font color="red">Error 500: </font>An error occurred loading the requested app</h3>');
+	}	
+});
+
 
 /*******************************
  *     PaymentJS Endpoints
