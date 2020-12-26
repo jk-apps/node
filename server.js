@@ -414,13 +414,6 @@ app.get('/signup', function(req, res) {
 					Enabled: true,
 					PlanType: ""
 				});
-				var newData = {
-					"Tasks" : [],
-					"Tags": [],
-					"PinnedTasks": [],
-					"Agenda": []
-				};
-				dataRef.child(usersRef.key).push(newData);
 			}).catch(function(error) {
 				console.error("AL Auth Error: " + error.message);
 				res.status(200).send('Error Processing');
