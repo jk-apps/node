@@ -410,7 +410,7 @@ app.get('/signup', function(req, res) {
 					LastOnline: new Date().getTime(),
 					Enabled: true,
 					PlanType: "",
-					Settings: {}
+					Settings: null
 				});
 				var newData = {
 					"Tasks" : [],
