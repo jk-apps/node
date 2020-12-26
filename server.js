@@ -275,7 +275,7 @@ app.post('/webal/:pkey/:eid', function(req, res) {
 });
 
 /*******************************
- *     App Proxy Endpoints
+ *   GetApp Proxy Endpoints
  ******************************/
 app.get('/getapp/:appsrc/:appname', function(req, res) {
     var appSrc = req.params.appsrc;
@@ -398,6 +398,32 @@ app.get('/signup', function(req, res) {
 				res.status(200).send('Error Processing');
 			});
 			res.status(200).send('New Account Created for: ' + req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1) + ' <br/>\nAccount Key: ' + usersRef.key);
+		} else if(req.param('app') == "agendalist" && req.param('skey') == signup_key) {
+			var rootRef = databaseAL.ref();
+			authAL.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
+				var profRef = rootRef.child('Profiles');
+				var dataRef = rootRef.child('ProfileData');
+				var usersRef = profRef.push({
+					Name: req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1),
+					Email: req.param('user')+"@email.com",
+					CreatedOn: new Date().getTime(),
+					LastOnline: new Date().getTime(),
+					Enabled: true,
+					PlanType: "",
+					Settings: {}
+				});
+				var newData = {
+					"Tasks" : [],
+					"Tags": [],
+					"PinnedTasks": [],
+					"Agenda": []
+				};
+				dataRef.child(usersRef.key).push(newData);
+			}).catch(function(error) {
+				console.error("AL Auth Error: " + error.message);
+				res.status(200).send('Error Processing');
+			});
+			res.status(200).send('New Account Created for: ' + req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1) + ' <br/>\nAccount Key: ' + usersRef.key);
 		} else {
 			res.status(200).send('Invalid app or key');
 		}
@@ -406,7 +432,7 @@ app.get('/signup', function(req, res) {
     }
 });
 app.get('/', function(req, res) {
-   res.status(200).send('<br/><center><h2>Welcome to JK\'s Node module Home</h2><p>Well, there\'s nothing to view here...</p></center>');
+   res.status(200).send('<br/><center><h2>Welcome to JK\'s Node module Home</h2><p>Thanks for visiting, but, there\'s nothing to view here...</p></center>');
 });
 
 /*******************************
