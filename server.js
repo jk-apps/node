@@ -348,11 +348,10 @@ app.get('/signup', function(req, res) {
     if(req.param('user') && req.param('app') && req.param('skey')) {
     	if(req.param('app') == "textbin" && req.param('skey') == signup_key) {
 			var rootRef = databaseTB.ref();
-			var usersRef = {};
 			authTB.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
 				var ownerRef = rootRef.child('Owners');
 				var clipRef = rootRef.child('Clips');
-				usersRef = ownerRef.push({
+				var usersRef = ownerRef.push({
 					username: req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1),
 					email: req.param('user')+"@email.com",
 					enabled: true,
@@ -366,18 +365,17 @@ app.get('/signup', function(req, res) {
 					"modified": (new Date()).getTime() * -1
 				};
 				clipRef.child(usersRef.key).push(newData);
+				res.status(200).send('New Account Created for: ' + req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1) + ' <br/>\nAccount Key: ' + usersRef.key);
 			}).catch(function(error) {
 				console.error("TB Auth Error: " + error.message);
 				res.status(200).send('Error Processing');
 			});
-			res.status(200).send('New Account Created for: ' + req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1) + ' <br/>\nAccount Key: ' + usersRef.key);
 		} else if(req.param('app') == "webal" && req.param('skey') == signup_key) {
 			var rootRef = databaseWB.ref();
-			var usersRef = {};
 			authWB.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
 				var profRef = rootRef.child('Profiles');
 				var entRef = rootRef.child('Entries');
-				usersRef = profRef.push({
+				var usersRef = profRef.push({
 					dispName: req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1),
 					email: req.param('user')+"@email.com",
 					entryThreshold: 130,
@@ -395,18 +393,17 @@ app.get('/signup', function(req, res) {
 					"webBal": 0
 				};
 				entRef.child(usersRef.key).push(newData);
+				res.status(200).send('New Account Created for: ' + req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1) + ' <br/>\nAccount Key: ' + usersRef.key);
 			}).catch(function(error) {
 				console.error("WB Auth Error: " + error.message);
 				res.status(200).send('Error Processing');
 			});
-			res.status(200).send('New Account Created for: ' + req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1) + ' <br/>\nAccount Key: ' + usersRef.key);
 		} else if(req.param('app') == "agendalist" && req.param('skey') == signup_key) {
 			var rootRef = databaseAL.ref();
-			var usersRef = {};
 			authAL.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
 				var profRef = rootRef.child('Profiles');
 				var dataRef = rootRef.child('ProfileData');
-				usersRef = profRef.push({
+				var usersRef = profRef.push({
 					Name: req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1),
 					Email: req.param('user')+"@email.com",
 					CreatedOn: new Date().getTime(),
@@ -414,11 +411,18 @@ app.get('/signup', function(req, res) {
 					Enabled: true,
 					PlanType: ""
 				});
+				var newData = {
+					"Tasks" : [],
+					"Tags": [],
+					"PinnedTasks": [],
+					"Agenda": []
+				};
+				dataRef.child(usersRef.key).push(newData);
+				res.status(200).send('New Account Created for: ' + req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1) + ' <br/>\nAccount Key: ' + usersRef.key);
 			}).catch(function(error) {
 				console.error("AL Auth Error: " + error.message);
 				res.status(200).send('Error Processing');
 			});
-			res.status(200).send('New Account Created for: ' + req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1) + ' <br/>\nAccount Key: ' + usersRef.key);
 		} else {
 			res.status(200).send('Invalid app or key');
 		}
