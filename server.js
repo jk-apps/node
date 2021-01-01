@@ -18,7 +18,6 @@ app.use(function(req, res, next) {
 });
 app.use(express.urlencoded());
 app.use(express.bodyParser());
-//app.use(express.bodyParser.json({ verify: function(req, res, buf) { req.rawBody = buf; }}));
 
 // ---- TextBin Instance ------
 var configTB = JSON.parse(process.env.TBFIREBASECONFIG);
@@ -324,11 +323,10 @@ app.post('/bopisproxy/oauth/token', function(req, res) {
 					token += characters.charAt(Math.floor(Math.random() * characters.length));
 			}
 		}
-		console.log("req.params = " + req.params);
-		if(req.params.username == "domadmin" && req.params.password == "password")
-			res.status(200).send('{"access_token":"' + token + '","token_type":"bearer","refresh_token":"' + token + '","expires_in":86399,"scope":"read"}');
-		else
-			res.status(401).send('{"error":"unauthorized","error_description":"No AuthenticationProvider found for org.springframework.security.authentication.UsernamePasswordAuthenticationToken"}');
+		//if(req.params.username == "domadmin" && req.params.password == "password")
+		res.status(200).send('{"access_token":"' + token + '","token_type":"bearer","refresh_token":"' + token + '","expires_in":86399,"scope":"read"}');
+		//else
+		//res.status(401).send('{"error":"unauthorized","error_description":"No AuthenticationProvider found for org.springframework.security.authentication.UsernamePasswordAuthenticationToken"}');
     }    
 });
 app.post('/bopisproxy/services/atc/getAvailabilityList', function(req, res) {
