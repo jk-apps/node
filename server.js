@@ -17,8 +17,8 @@ app.use(function(req, res, next) {
     next();
 });
 app.use(express.urlencoded());
-//app.use(express.bodyParser());
-app.use(express.bodyParser.json({ verify: function(req, res, buf) { req.rawBody = buf; }}));
+app.use(express.bodyParser());
+//app.use(express.bodyParser.json({ verify: function(req, res, buf) { req.rawBody = buf; }}));
 
 // ---- TextBin Instance ------
 var configTB = JSON.parse(process.env.TBFIREBASECONFIG);
@@ -324,6 +324,7 @@ app.post('/bopisproxy/oauth/token', function(req, res) {
 					token += characters.charAt(Math.floor(Math.random() * characters.length));
 			}
 		}
+		console.log("req.params = " + req.params);
 		if(req.params.username == "domadmin" && req.params.password == "password")
 			res.status(200).send('{"access_token":"' + token + '","token_type":"bearer","refresh_token":"' + token + '","expires_in":86399,"scope":"read"}');
 		else
@@ -333,7 +334,7 @@ app.post('/bopisproxy/oauth/token', function(req, res) {
 app.post('/bopisproxy/services/atc/getAvailabilityList', function(req, res) {
 	res.setHeader('Content-Type', 'application/json');
 	try {
-		var bodyData = JSON.parse(req.body);
+		var bodyData = req.body;
 		if(bopisConfigObj.authToken.mode == "simulated") {
 			var items = bodyData.availabilityRequest.availabilityCriteria.itemNames.itemName;
 			var facilities = bodyData.availabilityRequest.availabilityCriteria.facilityNames.facilityName;
