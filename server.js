@@ -6,6 +6,7 @@ var server_port = process.env.PORT || 5000;
 var signup_key = process.env.SIGNUPKEY;
 var authAccount = (""+process.env.AUTHACCOUNT).split(",");
 var pjsConfigObj = JSON.parse(process.env.PJSPROXYCONFIG);
+var bopisConfigObj = JSON.parse(process.env.BOPISPROXYCONFIG);
 
 var app = express();
 
@@ -275,7 +276,14 @@ app.post('/webal/:pkey/:eid', function(req, res) {
 });
 
 /*******************************
- *   GetApp Proxy Endpoints
+ *   AGENDALIST Endpoints
+ ******************************/
+app.get('/agendalist/:pkey/:data', function(req, res) {
+    res.status(200).send('{"error":"Access Denied"}');
+});
+
+/*******************************
+ *   GETAPP Proxy Endpoints
  ******************************/
 app.get('/getapp/:appsrc/:appname', function(req, res) {
     var appSrc = req.params.appsrc;
@@ -299,6 +307,64 @@ app.get('/getapp/:appsrc/:appname', function(req, res) {
 	}	
 });
 
+/*******************************
+ *     BOPIS Proxy Endpoints
+ ******************************/
+app.post('/bopisproxy/oauth/token', function(req, res) {
+    var token = bopisConfigObj.authToken.staticAccessToken;
+    if(bopisConfigObj.authToken.mode == "simulated") {
+    	if(token == "") {
+			var characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+			for ( var i = 0; i < 36; i++ ) {
+				if(i==8 || i==13 || i==18 || i==23)
+					token += '-';
+				else
+					token += characters.charAt(Math.floor(Math.random() * characters.length));
+			}
+		}
+		if(req.params.username == "domadmin" && req.params.password == "password")
+			res.status(200).send('{"access_token":"' + token + '","token_type":"bearer","refresh_token":"' + token + '","expires_in":86399,"scope":"read"}');
+		else
+			res.status(401).send('{"error":"unauthorized","error_description":"No AuthenticationProvider found for org.springframework.security.authentication.UsernamePasswordAuthenticationToken"}');
+    }    
+});
+app.post('/bopisproxy/services/atc/getAvailabilityList', function(req, res) {
+	try {
+		var bodyData = JSON.parse(req.body);
+		if(bopisConfigObj.authToken.mode == "simulated") {
+			var items = bodyData.availabilityRequest.availabilityCriteria.itemNames.itemName;
+			var facilities = bodyData.availabilityRequest.availabilityCriteria.facilityNames.facilityName;
+			var responseBody = new Object();
+			var availability = new Object();
+			var availabilityDetails = new Object();
+			var availabilityDetail = new Array();
+			availability.viewName = bodyData.availabilityRequest.viewName;
+			availability.viewConfiguration = "BOPIS";
+			for (var i=0; i<items.length; i++) {
+				for (var j=0; j<facilities.length; j++) {
+					var availData = new Object();
+					availData.businessUnit = 1;
+					availData.facilityName = facilities[j];
+					availData.itemName = items[i];
+					var atc = Math.floor(Math.random() * 79);
+					var atcStatus = (atc > 0) ? "In Stock" : "Out Of Stock";
+					availData.atcQuantity = atc;
+					availData.atcStatus = atcStatus;
+					availData.dcGroupQuantity = 0;
+					availData.storeGroupQuantity = 0;
+					availData.baseUOM = "EA";
+					availabilityDetail.push(availData);
+				}
+			}
+			availabilityDetails.availabilityDetail = availabilityDetail;
+			availability.availabilityDetails = availabilityDetails;
+			responseBody.availability = availability;
+			res.status(200).send(JSON.stringify(responseBody));
+		}
+	} catch(e) {
+		res.status(401).send('{"availability":{"messages":{"message":{"severity":"ERROR","code":38120500,"description":"' + e + '"}}}}');
+	}
+});
 
 /*******************************
  *     PaymentJS Endpoints
