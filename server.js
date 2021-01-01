@@ -17,7 +17,8 @@ app.use(function(req, res, next) {
     next();
 });
 app.use(express.urlencoded());
-app.use(express.bodyParser());
+//app.use(express.bodyParser());
+app.use(express.bodyParser.json({ verify: function(req, res, buf) { req.rawBody = buf; }}));
 
 // ---- TextBin Instance ------
 var configTB = JSON.parse(process.env.TBFIREBASECONFIG);
@@ -311,6 +312,7 @@ app.get('/getapp/:appsrc/:appname', function(req, res) {
  *     BOPIS Proxy Endpoints
  ******************************/
 app.post('/bopisproxy/oauth/token', function(req, res) {
+	res.setHeader('Content-Type', 'application/json');
     var token = bopisConfigObj.authToken.staticAccessToken;
     if(bopisConfigObj.authToken.mode == "simulated") {
     	if(token == "") {
@@ -329,6 +331,7 @@ app.post('/bopisproxy/oauth/token', function(req, res) {
     }    
 });
 app.post('/bopisproxy/services/atc/getAvailabilityList', function(req, res) {
+	res.setHeader('Content-Type', 'application/json');
 	try {
 		var bodyData = JSON.parse(req.body);
 		if(bopisConfigObj.authToken.mode == "simulated") {
