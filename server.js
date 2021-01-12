@@ -279,7 +279,45 @@ app.post('/webal/:pkey/:eid', function(req, res) {
  *   AGENDALIST Endpoints
  ******************************/
 app.get('/agendalist/:pkey/:data', function(req, res) {
-    res.status(200).send('{"error":"Access Denied"}');
+    var rootRef = databaseAL.ref();
+	
+	authAL.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
+		var profRef = rootRef.child('Profiles');
+		var entrRef = rootRef.child('Entries');
+
+		var recRef = profRef.child(req.params.pkey);
+		recRef.once('value',function(snapshot) {
+			if(snapshot != null && snapshot.val() != null) {
+				var data = snapshot.val();
+				if(data.enabled) {
+					var retData = new Object();
+					var preData = data.preWebData;
+					var postData = data.postWebData;
+					var balance = preData;
+				
+					var entrRecs = entrRef.child(req.params.pkey);
+					entrRecs.once('value',function(snapshot) {
+						snapshot.forEach(function (childSnap) {
+							var entry = childSnap.val();
+							balance += parseFloat(entry.webBal);
+						});
+						balance -= postData;
+						retData.dispName = data.dispName;
+						retData.entryThreshold = data.entryThreshold;
+						retData.savings = balance;
+						res.status(200).send( JSON.stringify(retData) );
+					});
+				} else {
+					res.status(200).send('{"error":"Not Enabled"}');
+				}
+			} else {
+				res.status(200).send('{"error":"Not Found"}');
+			}
+		});
+	}).catch(function(error) {
+		console.error("WB Auth Error: " + error.message);
+		res.status(200).send('{"error":"Access Denied"}');
+	});
 });
 
 /*******************************
@@ -329,7 +367,7 @@ app.post('/bopisproxy/oauth/token', function(req, res) {
 		//res.status(401).send('{"error":"unauthorized","error_description":"No AuthenticationProvider found for org.springframework.security.authentication.UsernamePasswordAuthenticationToken"}');
     }    
 });
-app.post('/bopisproxy/services/atc/getAvailabilityList', function(req, res) {
+app.post('/bopisproxy/services/atc/availability/getAvailabilityList', function(req, res) {
 	res.setHeader('Content-Type', 'application/json');
 	try {
 		var bodyData = req.body;
