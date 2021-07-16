@@ -348,7 +348,7 @@ app.get('/getapp/:appsrc/:appname', function(req, res) {
 /***********************************
  *   Order Notes Proxy Endpoints
  **********************************/
-app.post('/notesproxy/orders/:ordernum/notes', function(req, res) {
+app.post('/notesproxy/on/demandware.store/:sitename/default/COService-AddOrderNotes', function(req, res) {
 	res.setHeader('Content-Type', 'application/json');
 	if(req.header('data-client-id') != "poq" || req.header('data-auth-code') != "Mob!le21") {
 		res.status(200).send('{"status": "unauthorized"}');
