@@ -345,6 +345,18 @@ app.get('/getapp/:appsrc/:appname', function(req, res) {
 	}	
 });
 
+/***********************************
+ *   Order Notes Proxy Endpoints
+ **********************************/
+app.post('/notesproxy/orders/:ordernum/notes', function(req, res) {
+	res.setHeader('Content-Type', 'application/json');
+	if(req.header('data-client-id') != "poq" || req.header('data-auth-code') != "Mob!le21") {
+		res.status(200).send('{"status": "unauthorized"}');
+	} else {
+		res.status(200).send('{"status": "success"}');
+	}
+});
+
 /*******************************
  *     BOPIS Proxy Endpoints
  ******************************/
