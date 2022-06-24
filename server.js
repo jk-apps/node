@@ -398,7 +398,7 @@ app.post('/bopisproxy/services/atc/availability/getAvailabilityList', function(r
 					availData.businessUnit = 1;
 					availData.facilityName = facilities[j];
 					availData.itemName = items[i];
-					var atc = Math.floor(Math.random() * 79);
+					var atc = 10; //Math.floor(Math.random() * 79);
 					var atcStatus = (atc > 0) ? "In Stock" : "Out Of Stock";
 					availData.atcQuantity = atc;
 					availData.atcStatus = atcStatus;
