@@ -418,6 +418,72 @@ app.post('/bopisproxy/services/atc/availability/getAvailabilityList', function(r
 	}
 });
 
+app.post('/bopisproxy/inventory/api/availability/location/availabilitydetail', function(req, res) {
+	res.setHeader('Content-Type', 'application/json');
+	try {
+		var bodyData = req.body;
+		if(bopisConfigObj.authToken.mode == "simulated") {
+			var items = bodyData.Items;
+			var facilities = bodyData.Locations;
+			var reqViewName = bodyData.ViewName;
+			var responseBody = new Object();
+			var availability = new Object();
+			var availabilityDetails = new Object();
+			var availabilityDetail = new Array();
+			availability.success = true;
+			availability.header = null;
+			availability.messageKey = null;
+			availability.message = null;
+			availability.rootCause = null;
+			availability.cloudComponent = "com-manh-cp-inventory:inventory,docker,omni,rest,cloud,kubernetes,gcp,rest-kubernetes,htpc,p,htpcp,htpcopr11o:8080";
+			availability.cloudComponentHostName = "com-manh-cp-inventory-69994f7bdd-62lkk";
+			availability.requestUri = null;
+			availability.statusCode = "OK";
+			
+			for (var i=0; i<items.length; i++) {
+				for (var j=0; j<facilities.length; j++) {
+					var atc = 10;
+					if(bopisConfigObj.alwaysInStock.indexOf(items[i]) > 0) {
+						atc = 10;
+					} else if(bopisConfigObj.alwaysOutOfStock.indexOf(items[i]) > 0) {
+						atc = 0;
+					} else {
+						atc = Math.floor(Math.random() * 79);
+					}
+					var atcStatus = (atc > 0) ? "IN_STOCK" : "OUT_OF_STOCK";
+					var availData = new Object();
+					availData.ItemId = items[i];
+					availData.LocationId = facilities[j];
+					availData.Status = atcStatus;
+					availData.StatusCode = 0;
+					availData.Quantity = atc;
+					availData.NextAvailabilityDate = null;
+					availData.TransactionDateTime = null;
+					availData.ViewName = reqViewName;
+					availData.ViewId = reqViewName;
+					availData.TotalIncludingSubstituteItems = atc;
+					availData.SubstituteItemsAvailable = false;
+					availData.SubstitutionDetails = null;
+					availData.FirstAvailableFutureQuantity = null;
+					availData.FirstAvailableFutureDate = null;
+					availData.OnHandQuantity = null;
+					availData.OnHandStatus = null;
+					availData.OnHandStatusCode = null;
+					availData.FutureQuantity =  null;
+					availData.FutureSupplyDetails = null;
+					availData.IsInfiniteAvailability = null;
+					availabilityDetail.push(availData);
+				}
+			}
+			availability.data = availabilityDetail;
+			responseBody = availability;
+			res.status(200).send(JSON.stringify(responseBody));
+		}
+	} catch(e) {
+		res.status(401).send('{"success":true,"header":null,"data":[],"messageKey":null,"message":null,"errors":[],"exceptions":[],"messages":{"Message":[],"Size":0},"rootCause":null,"cloudComponent":"com-manh-cp-inventory:inventory,docker,omni,all,cloud,kubernetes,gcp,all-kubernetes,htpc,s,htpcs,htpcosf11o:8080","cloudComponentHostName":"all-com-manh-cp-inventory-6c9b5c5d4-j27pf","requestUri":null,"statusCode":"OK"}');
+	}
+});
+
 /*******************************
  *     PaymentJS Endpoints
  ******************************/
