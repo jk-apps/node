@@ -162,11 +162,13 @@ app.post('/multimath/:pkey/submissions', function(req, res) {
 		var profileRef = rootRef.child('Profiles');
 		var submissionRef = rootRef.child('Submissions');
 		
-		if(req.param('chapterNum') && req.param('chapterLevel') && req.param('data') && req.param('baseScore') && req.param('scoreRate') && req.param('finalScore')) {
+		if(req.param('chapterNum') && req.param('chapterLevel') && req.param('data') && req.param('baseScore') && req.param('scoreRate') && req.param('finalScore') && req.param('targetTime') && req.param('actualTime')) {
 			var newData = {
 				"chapterNum" : Number(req.param('chapterNum')),
 				"chapterLevel": Number(req.param('chapterLevel')),
 				"data": req.param('data'),
+				"targetTime": Number(req.param('targetTime')),
+				"actualTime": Number(req.param('actualTime')),
 				"baseScore": Number(req.param('baseScore')),
 				"scoreRate": Number(req.param('scoreRate')),
 				"finalScore": Number(req.param('finalScore')),
