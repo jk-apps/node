@@ -37,6 +37,12 @@ firebase.initializeApp(configAL, 'alapp');
 var databaseAL = firebase.app('alapp').database();
 var authAL = firebase.app('alapp').auth();
 
+// ---- MultiMath Instance ------
+var configMM = JSON.parse(process.env.MMFIREBASECONFIG);
+firebase.initializeApp(configMM, 'mmapp');
+var databaseMM = firebase.app('mmapp').database();
+var authMM = firebase.app('mmapp').auth();
+
 /*******************************
  *     TEXTBIN Endpoints
  ******************************/
@@ -118,6 +124,75 @@ app.post('/textbin/:ownkey', function(req, res) {
 	}).catch(function(error) {
 		console.error("TB Auth Error: " + error.message);
 		res.status(200).send('callbackClips({"error":"Access Denied"});');
+	});
+});
+
+/*******************************
+ *     MULTIMATH Endpoints
+ ******************************/
+app.get('/multimath/:pkey', function(req, res) {
+	var rootRef = databaseMM.ref();
+	authMM.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
+		var profRef = rootRef.child('Profiles');
+		var recRef = profRef.child(req.params.pkey);
+		recRef.once('value',function(snapshot) {
+			if(snapshot != null && snapshot.val() != null) {
+				var data = snapshot.val();
+				if(data.enabled) {
+					var retData = new Object();
+					retData.balance = data.multiMoneyBalance;
+					res.status(200).send( JSON.stringify(retData) );
+				} else {
+					res.status(200).send('{"error":"Not Enabled"}');
+				}
+			} else {
+				res.status(200).send('{"error":"Not Found"}');
+			}
+		});
+	}).catch(function(error) {
+		console.error("MM Auth Error: " + error.message);
+		res.status(200).send('{"error":"Access Denied"}');
+	});
+});
+app.post('/multimath/:pkey/submissions', function(req, res) {
+    var profKey = req.params.pkey;
+    
+	authMM.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
+		var rootRef = databaseMM.ref();
+		var profileRef = rootRef.child('Profiles');
+		var submissionRef = rootRef.child('Submissions');
+		
+		if(req.param('chapterNum') && req.param('chapterLevel') && req.param('data') && req.param('baseScore') && req.param('scoreRate') && req.param('finalScore')) {
+			var newData = {
+				"chapterNum" : Number(req.param('chapterNum')),
+				"chapterLevel": Number(req.param('chapterLevel')),
+				"data": req.param('data'),
+				"baseScore": Number(req.param('baseScore')),
+				"scoreRate": Number(req.param('scoreRate')),
+				"finalScore": Number(req.param('finalScore')),
+				"submitDateTime": (new Date()).getTime()
+			};
+			var recRef = profileRef.child(profKey);
+			recRef.once('value',function(snapshot) {
+				if(snapshot != null && snapshot.val() != null) {
+					var data = snapshot.val();
+					if(data.enabled) {
+						var dataRef = submissionRef.child(profKey);
+						dataRef.push(newData);
+						data.multiMoneyBalance = data.multiMoneyBalance + Number(req.param('finalScore'));
+						recRef.set(data);
+						res.redirect('/multimath/'+profKey);
+					} else {
+						res.status(200).send('{"error":"Not Enabled"};');
+					}
+				} else {
+					res.status(200).send('{"error":"Not Found"}');
+				}
+			});
+		}
+	}).catch(function(error) {
+		console.error("MM Auth Error: " + error.message);
+		res.status(200).send('{"error":"Access Denied"}');
 	});
 });
 
@@ -605,6 +680,21 @@ app.get('/signup', function(req, res) {
 				res.status(200).send('New Account Created for: ' + req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1) + ' <br/>\nAccount Key: ' + usersRef.key);
 			}).catch(function(error) {
 				console.error("AL Auth Error: " + error.message);
+				res.status(200).send('Error Processing');
+			});
+		} else if(req.param('app') == "multimath" && req.param('skey') == signup_key) {
+			var rootRef = databaseMM.ref();
+			authMM.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
+				var profRef = rootRef.child('Profiles');
+				var usersRef = profRef.push({
+					dispName: req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1),
+					email: req.param('user')+"@email.com",
+					multiMoneyBalance: 0,
+					enabled: true
+				});
+				res.status(200).send('New Account Created for: ' + req.param('user').charAt(0).toUpperCase() + req.param('user').substr(1) + ' <br/>\nAccount Key: ' + usersRef.key);
+			}).catch(function(error) {
+				console.error("MM Auth Error: " + error.message);
 				res.status(200).send('Error Processing');
 			});
 		} else {
