@@ -141,6 +141,7 @@ app.get('/multimath/:pkey', function(req, res) {
 				if(data.enabled) {
 					var retData = new Object();
 					retData.balance = data.multiMoneyBalance;
+					retData.displayName = data.displayName;
 					res.status(200).send( JSON.stringify(retData) );
 				} else {
 					res.status(200).send('{"error":"Not Enabled"}');
