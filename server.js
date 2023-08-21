@@ -134,7 +134,7 @@ app.post('/textbin/:ownkey', function(req, res) {
 app.post('/stockportfolio/quote', function(req, res) {
     if(req.param('symbols') && req.param('fields')) {
     	var quoteDetails = new Array();
-    	var symbolArr = req.param('symbols').split("\|");
+    	var symbolArr = req.param('symbols').split(",");
     	symbolArr.forEach(function(symbol) {
 			var quoteData = new Object();
 			var option1={ method: 'GET', uri: "https://finnhub.io/api/v1/stock/profile2?symbol=" + symbol + "&token=" + finhub_api_key};
