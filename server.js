@@ -137,11 +137,13 @@ app.post('/stockportfolio/quote', async function(req, res) {
     	var symbolArr = req.param('symbols').split("\|");
     	symbolArr.forEach(function(symbol) {
 			var quoteData = new Object();
-			await rp({ method: 'GET', uri: "https://finnhub.io/api/v1/stock/profile2?symbol=" + symbol + "&token=" + finhub_api_key}).then(function (parsedBody) {
+			var option1={ method: 'GET', uri: "https://finnhub.io/api/v1/stock/profile2?symbol=" + symbol + "&token=" + finhub_api_key};
+			await rp(option1).then(function (parsedBody) {
 				if(parsedBody != null && parsedBody != "") {
 					quoteData.symbol = symbol;
 					quoteData.shortName = parsedBody.name;
-					await rp({ method: 'GET', uri: "https://finnhub.io/api/v1/quote?symbol=" + symbol + "&token=" + finhub_api_key}).then(function (parsedBody) {
+					var option2={ method: 'GET', uri: "https://finnhub.io/api/v1/quote?symbol=" + symbol + "&token=" + finhub_api_key};
+					await rp(option2).then(function (parsedBody) {
 						if(parsedBody != null && parsedBody != "") {
 							quoteData.regularMarketPrice = parsedBody.c;
 							quoteData.regularMarketChange = parsedBody.d;
