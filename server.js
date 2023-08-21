@@ -137,11 +137,13 @@ app.post('/stockportfolio/quote', async function(req, res) {
     	var symbolArr = req.param('symbols').split(",");
     	symbolArr.forEach(function(symbol) {
 			var quoteData = new Object();
-			var parsedBody = await new Promise(rp("https://finnhub.io/api/v1/stock/profile2?symbol=" + symbol + "&token=" + finhub_api_key));			
-			if(parsedBody != null && parsedBody != "") {
-				quoteData.symbol = symbol;
-				quoteData.shortName = parsedBody.name;
-				var parsedBody2 = await new Promise(rp("https://finnhub.io/api/v1/quote?symbol=" + symbol + "&token=" + finhub_api_key));
+			await rp("https://finnhub.io/api/v1/stock/profile2?symbol=" + symbol + "&token=" + finhub_api_key).then(function(parsedBody) {
+				if(parsedBody != null && parsedBody != "") {
+					quoteData.symbol = symbol;
+					quoteData.shortName = parsedBody.name;
+					return rp("https://finnhub.io/api/v1/quote?symbol=" + symbol + "&token=" + finhub_api_key);
+				}
+			}).then(function(parsedBody2) {
 				if(parsedBody2 != null && parsedBody2 != "") {
 					quoteData.regularMarketPrice = parsedBody2.c;
 					quoteData.regularMarketChange = parsedBody2.d;
@@ -149,7 +151,7 @@ app.post('/stockportfolio/quote', async function(req, res) {
 					quoteData.time = parsedBody2.t;
 					quoteDetails.push(quoteData);
 				}
-			}
+			});			
     	});
     	var quoteResponse = new Object();
     	quoteResponse.result = quoteDetails;
