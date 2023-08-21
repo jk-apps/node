@@ -131,19 +131,19 @@ app.post('/textbin/:ownkey', function(req, res) {
 /*******************************
  *  STOCKPORTFOLIO Endpoints
  ******************************/
-app.post('/stockportfolio/quote', async function(req, res) {
+app.post('/stockportfolio/quote', function(req, res) {
     if(req.param('symbols') && req.param('fields')) {
     	var quoteDetails = new Array();
     	var symbolArr = req.param('symbols').split("\|");
     	symbolArr.forEach(function(symbol) {
 			var quoteData = new Object();
 			var option1={ method: 'GET', uri: "https://finnhub.io/api/v1/stock/profile2?symbol=" + symbol + "&token=" + finhub_api_key};
-			await rp(option1).then(function (parsedBody) {
+			rp(option1).then(function (parsedBody) {
 				if(parsedBody != null && parsedBody != "") {
 					quoteData.symbol = symbol;
 					quoteData.shortName = parsedBody.name;
 					var option2={ method: 'GET', uri: "https://finnhub.io/api/v1/quote?symbol=" + symbol + "&token=" + finhub_api_key};
-					await rp(option2).then(function (parsedBody) {
+					rp(option2).then(function (parsedBody) {
 						if(parsedBody != null && parsedBody != "") {
 							quoteData.regularMarketPrice = parsedBody.c;
 							quoteData.regularMarketChange = parsedBody.d;
