@@ -141,7 +141,10 @@ app.post('/stockportfolio/quote', function(req, res) {
 				if(parsedBody != null && parsedBody != "") {
 					quoteData.symbol = symbol;
 					var parsedBodyObj = JSON.parse(parsedBody);
-					quoteData.shortName = parsedBodyObj.name;
+					if(parsedBodyObj.name)
+						quoteData.shortName = parsedBodyObj.name;
+					else
+						quoteData.shortName = "N/A";
 					return rp("https://finnhub.io/api/v1/quote?symbol=" + symbol + "&token=" + finhub_api_key);
 				}
 			}).then(function(parsedBody2) {
