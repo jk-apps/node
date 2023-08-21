@@ -131,13 +131,13 @@ app.post('/textbin/:ownkey', function(req, res) {
 /*******************************
  *  STOCKPORTFOLIO Endpoints
  ******************************/
-app.post('/stockportfolio/quote', async function(req, res) {
+app.post('/stockportfolio/quote', function(req, res) {
     if(req.param('symbols') && req.param('fields')) {
     	var quoteDetails = new Array();
     	var symbolArr = req.param('symbols').split(",");
     	symbolArr.forEach(function(symbol) {
 			var quoteData = new Object();
-			await rp("https://finnhub.io/api/v1/stock/profile2?symbol=" + symbol + "&token=" + finhub_api_key).then(function(parsedBody) {
+			rp("https://finnhub.io/api/v1/stock/profile2?symbol=" + symbol + "&token=" + finhub_api_key).then(function(parsedBody) {
 				if(parsedBody != null && parsedBody != "") {
 					quoteData.symbol = symbol;
 					quoteData.shortName = parsedBody.name;
@@ -150,14 +150,16 @@ app.post('/stockportfolio/quote', async function(req, res) {
 					quoteData.regularMarketChangePercent = parsedBody2.dp;
 					quoteData.time = parsedBody2.t;
 					quoteDetails.push(quoteData);
+					if(symbol == symbolArr[symbolArr.length-1]) {
+						var quoteResponse = new Object();
+						quoteResponse.result = quoteDetails;
+						var response = new Object();
+						response.quoteResponse = quoteResponse;
+						res.status(200).send(response);
+					}
 				}
-			});			
+			});		
     	});
-    	var quoteResponse = new Object();
-    	quoteResponse.result = quoteDetails;
-    	var response = new Object();
-    	response.quoteResponse = quoteResponse;
-    	res.status(200).send(response);
     } else {
     	res.status(200).send('{"error":"Invalid Request"}');
     }
