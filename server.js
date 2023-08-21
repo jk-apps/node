@@ -152,7 +152,7 @@ app.post('/stockportfolio/quote', function(req, res) {
 					quoteData.regularMarketChangePercent = parsedBodyObj2.dp;
 					quoteData.time = parsedBodyObj2.t;
 					quoteDetails.push(quoteData);
-					if(symbol == symbolArr[symbolArr.length-1]) {
+					if(quoteDetails.length == symbolArr.length) {
 						var quoteResponse = new Object();
 						quoteResponse.result = quoteDetails;
 						var response = new Object();
