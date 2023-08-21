@@ -138,7 +138,9 @@ app.post('/stockportfolio/quote', function(req, res) {
     	symbolArr.forEach(function(symbol) {
 			var quoteData = new Object();
 			var option1={ method: 'GET', uri: "https://finnhub.io/api/v1/stock/profile2?symbol=" + symbol + "&token=" + finhub_api_key};
+			console.log("before first fetch");
 			rp(option1).then(function (parsedBody) {
+				console.log("after first fetch" + parsedBody);
 				if(parsedBody != null && parsedBody != "") {
 					quoteData.symbol = symbol;
 					quoteData.shortName = parsedBody.name;
