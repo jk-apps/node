@@ -131,31 +131,27 @@ app.post('/textbin/:ownkey', function(req, res) {
 /*******************************
  *  STOCKPORTFOLIO Endpoints
  ******************************/
-app.post('/stockportfolio/quote', function(req, res) {
+app.post('/stockportfolio/quote', async function(req, res) {
     if(req.param('symbols') && req.param('fields')) {
     	var quoteDetails = new Array();
     	var symbolArr = req.param('symbols').split(",");
     	symbolArr.forEach(function(symbol) {
 			var quoteData = new Object();
-			var option1={ method: 'GET', uri: "https://finnhub.io/api/v1/stock/profile2?symbol=" + symbol + "&token=" + finhub_api_key};
-			console.log("before first fetch");
-			rp(option1).then(function (parsedBody) {
-				console.log("after first fetch" + parsedBody);
-				if(parsedBody != null && parsedBody != "") {
-					quoteData.symbol = symbol;
-					quoteData.shortName = parsedBody.name;
-					var option2={ method: 'GET', uri: "https://finnhub.io/api/v1/quote?symbol=" + symbol + "&token=" + finhub_api_key};
-					rp(option2).then(function (parsedBody) {
-						if(parsedBody != null && parsedBody != "") {
-							quoteData.regularMarketPrice = parsedBody.c;
-							quoteData.regularMarketChange = parsedBody.d;
-							quoteData.regularMarketChangePercent = parsedBody.dp;
-							quoteData.time = parsedBody.t;
-							quoteDetails.push(quoteData);
-						}
-					});
+			var option1={ method: 'GET', uri: };
+			var parsedBody = await rp.get("https://finnhub.io/api/v1/stock/profile2?symbol=" + symbol + "&token=" + finhub_api_key);			
+			if(parsedBody != null && parsedBody != "") {
+				quoteData.symbol = symbol;
+				quoteData.shortName = parsedBody.name;
+				var option2={ method: 'GET', uri: };
+				var parsedBody2 = await rp.get("https://finnhub.io/api/v1/quote?symbol=" + symbol + "&token=" + finhub_api_key);
+				if(parsedBody2 != null && parsedBody2 != "") {
+					quoteData.regularMarketPrice = parsedBody2.c;
+					quoteData.regularMarketChange = parsedBody2.d;
+					quoteData.regularMarketChangePercent = parsedBody2.dp;
+					quoteData.time = parsedBody2.t;
+					quoteDetails.push(quoteData);
 				}
-			});
+			}
     	});
     	var quoteResponse = new Object();
     	quoteResponse.result = quoteDetails;
