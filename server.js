@@ -140,15 +140,17 @@ app.post('/stockportfolio/quote', function(req, res) {
 			rp("https://finnhub.io/api/v1/stock/profile2?symbol=" + symbol + "&token=" + finhub_api_key).then(function(parsedBody) {
 				if(parsedBody != null && parsedBody != "") {
 					quoteData.symbol = symbol;
-					quoteData.shortName = parsedBody.name;
+					var parsedBodyObj = JSON.parse(parsedBody);
+					quoteData.shortName = parsedBodyObj.name;
 					return rp("https://finnhub.io/api/v1/quote?symbol=" + symbol + "&token=" + finhub_api_key);
 				}
 			}).then(function(parsedBody2) {
 				if(parsedBody2 != null && parsedBody2 != "") {
-					quoteData.regularMarketPrice = parsedBody2.c;
-					quoteData.regularMarketChange = parsedBody2.d;
-					quoteData.regularMarketChangePercent = parsedBody2.dp;
-					quoteData.time = parsedBody2.t;
+					var parsedBodyObj2 = JSON.parse(parsedBody2);
+					quoteData.regularMarketPrice = parsedBodyObj2.c;
+					quoteData.regularMarketChange = parsedBodyObj2.d;
+					quoteData.regularMarketChangePercent = parsedBodyObj2.dp;
+					quoteData.time = parsedBodyObj2.t;
 					quoteDetails.push(quoteData);
 					if(symbol == symbolArr[symbolArr.length-1]) {
 						var quoteResponse = new Object();
