@@ -133,18 +133,26 @@ app.post('/textbin/:ownkey', function(req, res) {
  ******************************/
 app.post('/stockportfolio/quote', function(req, res) {
     if(req.param('symbols') && req.param('fields')) {
+    	console.log("Referer: " + req.headers.referer);
     	var quoteDetails = new Array();
     	var symbolArr = req.param('symbols').split(",");
     	symbolArr.forEach(function(symbol) {
 			var quoteData = new Object();
 			rp("https://finnhub.io/api/v1/stock/profile2?symbol=" + symbol + "&token=" + finhub_api_key).then(function(parsedBody) {
 				if(parsedBody != null && parsedBody != "") {
-					quoteData.symbol = symbol;
 					var parsedBodyObj = JSON.parse(parsedBody);
-					if(parsedBodyObj.name)
+					quoteData.symbol = parsedBodyObj.ticker;
+					if(parsedBodyObj.name) {
 						quoteData.shortName = parsedBodyObj.name;
-					else
+						quoteData.currency = parsedBodyObj.currency;
+						quoteData.exchange = parsedBodyObj.exchange;
+						quoteData.segment = parsedBodyObj.finnhubIndustry;
+						quoteData.ipoDate = parsedBodyObj.ipo;
+						quoteData.logoImg = parsedBodyObj.logo;
+						quoteData.chartImg = "https://stockcharts.com/c-sc/sc?s=" + quoteData.symbol + "&w=250&h=110&i=p67382559859";
+					} else {
 						quoteData.shortName = "NA";
+					}
 					return rp("https://finnhub.io/api/v1/quote?symbol=" + symbol + "&token=" + finhub_api_key);
 				}
 			}).then(function(parsedBody2) {
