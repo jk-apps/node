@@ -154,7 +154,8 @@ app.post('/stockportfolio/quote', cors(spfCorsOptions), function(req, res) {
 			rp("https://finnhub.io/api/v1/stock/profile2?symbol=" + symbol + "&token=" + finhub_api_key).then(function(parsedBody) {
 				if(parsedBody != null && parsedBody != "") {
 					var parsedBodyObj = JSON.parse(parsedBody);
-					quoteData.symbol = parsedBodyObj.ticker;
+					quoteData.symbol = symbol;
+					quoteData.refSymbol = parsedBodyObj.ticker;
 					if(parsedBodyObj.name) {
 						quoteData.shortName = parsedBodyObj.name;
 						quoteData.currency = parsedBodyObj.currency;
