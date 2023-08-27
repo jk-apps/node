@@ -13,14 +13,15 @@ var spfWhitelist = (""+process.env.SPFCORS).split("\|");
 
 var app = express();
 
+//For client calls as server side can still pass through
 var spfCorsOptions = {
   origin: function (origin, callback) {
+  	console.log("Client Origin = " + origin);
   	//append || !origin condition to allow server to server tools access
     if (spfWhitelist.indexOf(origin) !== -1 || !origin) {
         callback(null, true);
     } else {
-    	console.log(origin);
-        callback(new Error('Not allowed by CORS'));
+    	callback(new Error('Not allowed by Client CORS'));
     }
   }
 };
@@ -146,7 +147,8 @@ app.post('/textbin/:ownkey', function(req, res) {
  *  STOCKPORTFOLIO Endpoints
  ******************************/
 app.post('/stockportfolio/quote', cors(spfCorsOptions), function(req, res) {
-    if(req.param('symbols') && req.param('fields')) {
+	console.log("Server Origin: " + req.headers.origin);
+    if(req.param('symbols') && req.param('fields') && spfWhitelist.indexOf(req.headers.origin) !== -1) {
     	var quoteDetails = new Array();
     	var symbolArr = req.param('symbols').split(",");
     	symbolArr.forEach(function(symbol) {
