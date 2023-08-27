@@ -9,17 +9,17 @@ var finhub_api_key = process.env.FINHUBKEY;
 var authAccount = (""+process.env.AUTHACCOUNT).split(",");
 var pjsConfigObj = JSON.parse(process.env.PJSPROXYCONFIG);
 var bopisConfigObj = JSON.parse(process.env.BOPISPROXYCONFIG);
+var spfWhitelist = (""+process.env.SPFCORS).split("\|");
 
 var app = express();
 
-var whitelist = ['http://netvibes.com'];
-var corsOptions = {
+var spfCorsOptions = {
   origin: function (origin, callback) {
   	//append || !origin condition to allow server to server tools access
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true)
+    if (spfWhitelist.indexOf(origin) !== -1) {
+      callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'))
+      callback(new Error('Not allowed by CORS'));
     }
   }
 };
@@ -144,7 +144,7 @@ app.post('/textbin/:ownkey', function(req, res) {
 /*******************************
  *  STOCKPORTFOLIO Endpoints
  ******************************/
-app.post('/stockportfolio/quote', cors(corsOptions), function(req, res) {
+app.post('/stockportfolio/quote', cors(spfCorsOptions), function(req, res) {
     if(req.param('symbols') && req.param('fields')) {
     	var quoteDetails = new Array();
     	var symbolArr = req.param('symbols').split(",");
