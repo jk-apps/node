@@ -1,5 +1,6 @@
 var express = require('express');
 var firebase = require('firebase');
+var cors = require('cors');	
 var rp = require('request-promise-native');
 
 var server_port = process.env.PORT || 5000;
@@ -11,7 +12,19 @@ var bopisConfigObj = JSON.parse(process.env.BOPISPROXYCONFIG);
 
 var app = express();
 
-// ---- To allow CORS -----
+var whitelist = ['http://netvibes.com'];
+var corsOptions = {
+  origin: function (origin, callback) {
+  	//append || !origin condition to allow server to server tools access
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
+};
+
+// ---- To allow Global CORS -----
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -131,9 +144,8 @@ app.post('/textbin/:ownkey', function(req, res) {
 /*******************************
  *  STOCKPORTFOLIO Endpoints
  ******************************/
-app.post('/stockportfolio/quote', function(req, res) {
+app.post('/stockportfolio/quote', cors(corsOptions), function(req, res) {
     if(req.param('symbols') && req.param('fields')) {
-    	console.log("Referer: " + req.headers.referer);
     	var quoteDetails = new Array();
     	var symbolArr = req.param('symbols').split(",");
     	symbolArr.forEach(function(symbol) {
