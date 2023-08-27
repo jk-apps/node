@@ -16,6 +16,7 @@ var app = express();
 var spfCorsOptions = {
   origin: function (origin, callback) {
   	//append || !origin condition to allow server to server tools access
+  	console.log(origin);
     if (spfWhitelist.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
