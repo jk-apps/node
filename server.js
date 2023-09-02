@@ -30,6 +30,10 @@ var spfCorsOptions = {
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.setTimeout(240000, function(){
+		console.log('Request has timed out.');
+		res.status(200).send('{"error":"Request Timed-out"}');
+	});
     next();
 });
 app.use(express.urlencoded());
