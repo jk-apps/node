@@ -2,6 +2,7 @@ var express = require('express');
 var firebase = require('firebase');
 var cors = require('cors');	
 var rp = require('request-promise-native');
+var timeout = require('connect-timeout')
 
 var server_port = process.env.PORT || 5000;
 var signup_key = process.env.SIGNUPKEY;
@@ -36,8 +37,15 @@ app.use(function(req, res, next) {
 	});
     next();
 });
+app.use(timeout('240s'));
 app.use(express.urlencoded());
 app.use(express.bodyParser());
+app.use(haltOnTimedout);
+
+
+function haltOnTimedout (req, res, next) {
+  if (!req.timedout) next();
+}
 
 // ---- TextBin Instance ------
 var configTB = JSON.parse(process.env.TBFIREBASECONFIG);

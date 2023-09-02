@@ -14,6 +14,7 @@
         "firebase": "3.x.x",
         "cors": "2.8.x",
         "request": "2.34.x",
+        "connect-timeout": "1.9.x",
         "request-promise-native": "1.x.x"
     }
 }
