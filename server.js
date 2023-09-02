@@ -42,11 +42,6 @@ app.use(express.urlencoded());
 app.use(express.bodyParser());
 app.use(haltOnTimedout);
 
-
-function haltOnTimedout (req, res, next) {
-  if (!req.timedout) next();
-}
-
 // ---- TextBin Instance ------
 var configTB = JSON.parse(process.env.TBFIREBASECONFIG);
 firebase.initializeApp(configTB);
@@ -158,7 +153,7 @@ app.post('/textbin/:ownkey', function(req, res) {
 /*******************************
  *  STOCKPORTFOLIO Endpoints
  ******************************/
-app.post('/stockportfolio/quote', cors(spfCorsOptions), function(req, res) {
+app.post('/stockportfolio/quote', cors(spfCorsOptions), timeout('240s'), haltOnTimedout, function(req, res) {
 	console.log("Server Origin: " + req.headers.origin);
     if(req.param('symbols') && req.param('fields') && spfWhitelist.indexOf(""+req.headers.origin) !== -1) {
     	var quoteDetails = new Array();
@@ -790,6 +785,11 @@ app.get('/signup', function(req, res) {
 app.get('/', function(req, res) {
    res.status(200).send('<br/><center><h2>Welcome to JK\'s Node module Home</h2><p>Thanks for visiting, but, there\'s nothing to view here...</p></center>');
 });
+
+
+function haltOnTimedout (req, res, next) {
+  if (!req.timedout) next();
+}
 
 /*******************************
  *     Startup App
