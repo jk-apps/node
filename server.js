@@ -164,8 +164,8 @@ app.post('/stockportfolio/quote', cors(spfCorsOptions), timeout('240s'), haltOnT
 				if(parsedBody != null && parsedBody != "") {
 					var parsedBodyObj = JSON.parse(parsedBody);
 					quoteData.symbol = symbol;
-					quoteData.refSymbol = parsedBodyObj.ticker;
 					if(parsedBodyObj.name) {
+						quoteData.refSymbol = parsedBodyObj.ticker;
 						quoteData.shortName = parsedBodyObj.name;
 						quoteData.currency = parsedBodyObj.currency;
 						quoteData.exchange = parsedBodyObj.exchange;
