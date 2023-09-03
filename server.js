@@ -215,6 +215,12 @@ app.post('/stockportfolio/quote', cors(spfCorsOptions), timeout('240s'), haltOnT
     	res.status(200).send('{"error":"Invalid Request"}');
     }
 });
+app.get('/stockportfolio/latestversion', cors(spfCorsOptions), timeout('240s'), haltOnTimedout, function(req, res) {
+	var response = new Object();
+	response.latestversion = "4.0.0";
+	response.versionmemo="<b>Test</b>";
+	res.status(200).send(response);
+});
 
 
 /*******************************
