@@ -217,8 +217,8 @@ app.post('/stockportfolio/quote', cors(spfCorsOptions), timeout('240s'), haltOnT
 });
 app.get('/stockportfolio/latestversion', cors(spfCorsOptions), timeout('240s'), haltOnTimedout, function(req, res) {
 	var response = new Object();
-	response.latestversion = "4.0.0";
-	response.versionmemo="<b>Test</b>";
+	response.latestversion = process.env.SPFVER || "4.0.0";
+	response.versionmemo = process.env.SPFMEMO || "<b>N/A</b>";
 	res.status(200).send(response);
 });
 
