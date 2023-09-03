@@ -181,11 +181,15 @@ app.post('/stockportfolio/quote', cors(spfCorsOptions), timeout('240s'), haltOnT
 			}).then(function(parsedBody2) {
 				if(parsedBody2 != null && parsedBody2 != "") {
 					var parsedBodyObj2 = JSON.parse(parsedBody2);
-					quoteData.regularMarketPrice = parsedBodyObj2.c;
-					quoteData.regularMarketChange = parsedBodyObj2.d;
-					quoteData.regularMarketChangePercent = parsedBodyObj2.dp;
-					quoteData.time = parsedBodyObj2.t;
-					quoteDetails.push(quoteData);
+					if(parsedBodyObj2.c) {
+						quoteData.regularMarketPrice = parsedBodyObj2.c;
+						quoteData.regularMarketChange = parsedBodyObj2.d;
+						quoteData.regularMarketChangePercent = parsedBodyObj2.dp;
+						quoteData.time = parsedBodyObj2.t;
+						quoteDetails.push(quoteData);
+					} else {
+						quoteDetails.push(quoteData);
+					}
 					if(quoteDetails.length == symbolArr.length) {
 						var quoteResponse = new Object();
 						quoteResponse.result = quoteDetails;
