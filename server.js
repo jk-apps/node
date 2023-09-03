@@ -198,6 +198,17 @@ app.post('/stockportfolio/quote', cors(spfCorsOptions), timeout('240s'), haltOnT
 						res.status(200).send(response);
 					}
 				}
+			}).catch(function(err){
+				quoteData.symbol = symbol;
+				quoteData.shortName = "NA";
+				quoteDetails.push(quoteData);
+				if(quoteDetails.length == symbolArr.length) {
+					var quoteResponse = new Object();
+					quoteResponse.result = quoteDetails;
+					var response = new Object();
+					response.quoteResponse = quoteResponse;
+					res.status(200).send(response);
+				}
 			});		
     	});
     } else {
