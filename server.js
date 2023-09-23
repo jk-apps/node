@@ -7,6 +7,7 @@ var timeout = require('connect-timeout')
 var server_port = process.env.PORT || 5000;
 var signup_key = process.env.SIGNUPKEY;
 var finhub_api_key = process.env.FINHUBKEY;
+var stgProduct_url = process.env.STAGEPRODUCTURL;
 var authAccount = (""+process.env.AUTHACCOUNT).split(",");
 var pjsConfigObj = JSON.parse(process.env.PJSPROXYCONFIG);
 var bopisConfigObj = JSON.parse(process.env.BOPISPROXYCONFIG);
@@ -224,6 +225,43 @@ app.get('/stockportfolio/latestversion', cors(spfCorsOptions), timeout('240s'), 
 
 
 /*******************************
+ *  Staging Product Endpoint
+ ******************************/
+app.get('/stageproduct/:siteid/:productid', function(req, res) {
+	if(stgProduct_url != "") {
+		var dataURL = stgProduct_url.replaceAll("{0}", req.params.siteid).replaceAll("{1}", req.params.productid);
+		rp(dataURL).then(function (parsedBody) {
+			var response = new Object();
+			if(parsedBody.hasOwnProperty("fault")) {
+				response.status = "error";
+			} else {
+				response.status = "success";
+				response.productName = parsedBody.name;
+				var imgLink = "";
+				for(var i=0; i<=parsedBody.image_groups.length; i++) {
+					var data = parsedBody.image_groups[i];
+					if (data.view_type == "hi-res") {
+						imgLink = data.images[0].link;
+						break;
+					}
+				}
+				if(imgLink == "") {
+					response.status = "error";
+				} else {
+					response.productImage = imgLink;
+				}
+			}
+			res.status(200).send(response);
+		}).catch(function (err) {
+			res.status(200).send('{"status":"error"}');
+		});
+	} else {
+		res.status(200).send('{"status":"error"}');
+	}
+});
+
+
+/*******************************
  *     MULTIMATH Endpoints
  ******************************/
 app.get('/multimath/:pkey', function(req, res) {
@@ -300,7 +338,6 @@ app.post('/multimath/:pkey/submissions', function(req, res) {
  ******************************/
 app.get('/webal/:pkey', function(req, res) {
 	var rootRef = databaseWB.ref();
-	
 	authWB.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
 		var profRef = rootRef.child('Profiles');
 		var entrRef = rootRef.child('Entries');
