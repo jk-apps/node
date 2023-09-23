@@ -230,9 +230,11 @@ app.get('/stockportfolio/latestversion', cors(spfCorsOptions), timeout('240s'), 
 app.get('/stageproduct/:siteid/:productid', function(req, res) {
 	if(stgProduct_url != "") {
 		var dataURL = ""+stgProduct_url.replace("{0}", req.params.siteid).replace("{0}", req.params.siteid).replace("{1}", req.params.productid);
+		console.log(dataURL);
 		rp(dataURL).then(function (parsedBody) {
 			var response = new Object();
 			if(parsedBody.hasOwnProperty("fault")) {
+				console.log(parsedBody);
 				response.status = "error";
 			} else {
 				response.status = "success";
@@ -253,6 +255,7 @@ app.get('/stageproduct/:siteid/:productid', function(req, res) {
 			}
 			res.status(200).send(response);
 		}).catch(function (err) {
+			console.log(err);
 			res.status(200).send('{"status":"error"}');
 		});
 	} else {
