@@ -230,7 +230,6 @@ app.get('/stockportfolio/latestversion', cors(spfCorsOptions), timeout('240s'), 
 app.get('/stageproduct/:siteid/:productid', function(req, res) {
 	if(stgProduct_url != "") {
 		var dataURL = ""+stgProduct_url.replace("{0}", req.params.siteid).replace("{0}", req.params.siteid).replace("{1}", req.params.productid);
-		console.log(dataURL);
 		rp(dataURL).then(function (parsedBody) {
 			var response = new Object();
 			if(parsedBody.hasOwnProperty("fault")) {
@@ -240,6 +239,7 @@ app.get('/stageproduct/:siteid/:productid', function(req, res) {
 				response.status = "success";
 				response.productName = parsedBody.name;
 				var imgLink = "";
+				console.log(parsedBody.image_groups);
 				for(var i=0; i<=parsedBody.image_groups.length; i++) {
 					var data = parsedBody.image_groups[i];
 					if (data.view_type == "hi-res") {
