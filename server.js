@@ -230,7 +230,8 @@ app.get('/stockportfolio/latestversion', cors(spfCorsOptions), timeout('240s'), 
 app.get('/stageproduct/:siteid/:productid', function(req, res) {
 	if(stgProduct_url != "") {
 		var dataURL = ""+stgProduct_url.replace("{0}", req.params.siteid).replace("{0}", req.params.siteid).replace("{1}", req.params.productid);
-		rp(dataURL).then(function (parsedBody) {
+		rp(dataURL).then(function (data) {
+			var parsedBody = JSON.parse(data);
 			var response = new Object();
 			if(parsedBody.hasOwnProperty("fault")) {
 				console.log(parsedBody);
