@@ -240,7 +240,6 @@ app.get('/stageproduct/:siteid/:productid', function(req, res) {
 				response.status = "success";
 				response.productName = parsedBody.name;
 				var imgLink = "";
-				console.log(parsedBody.image_groups);
 				for(var i=0; i<=parsedBody.image_groups.length; i++) {
 					var data = parsedBody.image_groups[i];
 					if (data.view_type == "hi-res") {
