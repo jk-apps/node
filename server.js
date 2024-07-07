@@ -200,6 +200,7 @@ app.post('/stockportfolio/quote', cors(spfCorsOptions), timeout('240s'), haltOnT
 					}
 				}
 			}).catch(function(err){
+				console.log("Error fetching data: " + err);
 				quoteData.symbol = symbol;
 				quoteData.shortName = "NA";
 				quoteDetails.push(quoteData);
