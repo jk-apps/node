@@ -15,6 +15,8 @@ var spfWhitelist = (""+process.env.SPFCORS).split("\|");
 
 var app = express();
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 //For client calls as server side can still pass through
 var spfCorsOptions = {
   origin: function (origin, callback) {
@@ -223,7 +225,6 @@ app.get('/stockportfolio/latestversion', cors(spfCorsOptions), timeout('240s'), 
 	response.versionmemo = process.env.SPFMEMO || "<b>N/A</b>";
 	res.status(200).send(response);
 });
-
 
 /*******************************
  *  Staging Product Endpoint
