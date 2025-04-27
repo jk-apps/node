@@ -959,7 +959,7 @@ app.get('/signup', function(req, res) {
 						});
 						if(profId == "") {
 							var usersRef = profRef.push({
-								createdOn = (new Date()).getTime(),
+								createdOn : (new Date()).getTime(),
 								name: req.param('user').charAt(0).toUpperCase() + req.param('user').substring(1, req.param('user').indexOf("@")),
 								email: req.param('user'),
 								enabled: true,
