@@ -974,7 +974,7 @@ app.get('/signup', function(req, res) {
 								profileID: profId,
 								appCode: req.param('prefappcode').toUpperCase(),
 								accessCode: "RW",
-								prefData: new Buffer("{}", "utf8").toString('base64');,
+								prefData: new Buffer("{}", "utf8").toString('base64'),
 								accessDateTime = (new Date()).getTime()
 							});
 							res.status(200).send('New Pref-Key Generated for: ' + req.param('user') + ' <br/>\nNew Profile: ' + newProf + '<br/>\Pref Key: ' + dataRef.key);
