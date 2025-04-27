@@ -69,6 +69,12 @@ firebase.initializeApp(configMM, 'mmapp');
 var databaseMM = firebase.app('mmapp').database();
 var authMM = firebase.app('mmapp').auth();
 
+// ---- Prefscription Instance ------
+var configPS = JSON.parse(process.env.PSFIREBASECONFIG);
+firebase.initializeApp(configPS, 'psapp');
+var databasePS = firebase.app('psapp').database();
+var authPS = firebase.app('psapp').auth();
+
 /*******************************
  *     TEXTBIN Endpoints
  ******************************/
@@ -337,6 +343,102 @@ app.post('/multimath/:pkey/submissions', function(req, res) {
 		res.status(200).send('{"error":"Access Denied"}');
 	});
 });
+
+
+/*******************************
+ *  PREFSCRIPTION Endpoints
+ ******************************/
+app.get('/prefscription/:pkey', function(req, res) {
+	res.setHeader('Content-Type', 'application/json');
+	var rootRef = databasePS.ref();
+	authPS.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
+		var profRef = rootRef.child('Profiles');
+		var prefRef = rootRef.child('Preferences');
+		var recRef = prefRef.child(req.params.pkey);
+		recRef.once('value',function(snapshot) {
+			if(snapshot != null && snapshot.val() != null) {
+				var data = snapshot.val();
+				if(data.accessCode != "N") {
+					if(data.appCode == req.param('appCode')) {
+						var usrRecRef = profRef.child(data.profileId);
+						usrRecRef.once('value',function(pSnapshot) {
+							if(pSnapshot != null && pSnapshot.val() != null) {
+								 var usrData = pSnapshot.val();
+								 if(usrData.enabled) {
+								 	data.accessDateTime = (new Date()).getTime();
+								 	recRef.set(data);
+								 	var retData = new Object();
+									retData.prefData = data.prefData;
+									retData.planData = usrData.planData;
+									retData.profName = usrData.name;
+									res.status(200).send( JSON.stringify(retData) );
+								 } else {
+								 	res.status(200).send('{"error":"Profile Disabled"}');
+								 }
+							} else {
+								res.status(200).send('{"error":"Invalid Profile"}');
+							}
+						});
+					} else {
+						res.status(200).send('{"error":"Incorrect AppCode"}');
+					}
+				} else {
+					res.status(200).send('{"error":"No Access"}');
+				}
+			} else {
+				res.status(200).send('{"error":"Not Found"}');
+			}
+		});
+	}).catch(function(error) {
+		console.error("PS Auth Error: " + error.message);
+		res.status(200).send('{"error":"Access Denied"}');
+	});
+});
+app.post('/prefscription/:pkey', function(req, res) {
+	res.setHeader('Content-Type', 'application/json');
+	var profKey = req.params.pkey;
+    
+	authPS.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
+		var profRef = rootRef.child('Profiles');
+		var prefRef = rootRef.child('Preferences');
+		var recRef = prefRef.child(req.params.pkey);
+		recRef.once('value',function(snapshot) {
+			if(snapshot != null && snapshot.val() != null) {
+				var data = snapshot.val();
+				if(data.accessCode == "RW") {
+					if(data.appCode == req.param('appCode')) {
+						var usrRecRef = profRef.child(data.profileId);
+						usrRecRef.once('value',function(pSnapshot) {
+							if(pSnapshot != null && pSnapshot.val() != null) {
+								 var usrData = pSnapshot.val();
+								 if(usrData.enabled) {
+								 	data.prefData = req.body;
+								 	data.accessDateTime = (new Date()).getTime();
+								 	recRef.set(data);
+								 	res.status(200).send('{"success":"true"}');
+								 } else {
+								 	res.status(200).send('{"error":"Profile Disabled"}');
+								 }
+							} else {
+								res.status(200).send('{"error":"Invalid Profile"}');
+							}
+						});
+					} else {
+						res.status(200).send('{"error":"Incorrect AppCode"}');
+					}
+				} else {
+					res.status(200).send('{"error":"No Access"}');
+				}
+			} else {
+				res.status(200).send('{"error":"Not Found"}');
+			}
+		});
+	}).catch(function(error) {
+		console.error("PS Auth Error: " + error.message);
+		res.status(200).send('{"error":"Access Denied"}');
+	});
+});
+
 
 /*******************************
  *     WEBAL Endpoints
@@ -838,6 +940,55 @@ app.get('/signup', function(req, res) {
 				console.error("MM Auth Error: " + error.message);
 				res.status(200).send('Error Processing');
 			});
+		} else if(req.param('app') == "prefscription" && req.param('skey') == signup_key) {
+			if(req.param('user').indexOf("@") > 0 && req.param('prefappcode').trim() != "") {
+				var rootRef = databasePS.ref();
+				authPS.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
+					var profRef = rootRef.child('Profiles');
+					var query = profRef.orderByKey();
+					query.once('value',function(snapshot) {
+						var profId = "";
+						var newProf = true;
+						snapshot.forEach(function (childSnap) {
+							var prof = childSnap.val();
+							if(profId == "" && prof.email == req.param('user')) {
+								profId = childSnap.key;
+								newProf = false;
+								return true;
+							}
+						});
+						if(profId == "") {
+							var usersRef = profRef.push({
+								createdOn = (new Date()).getTime(),
+								name: req.param('user').charAt(0).toUpperCase() + req.param('user').substring(1, req.param('user').indexOf("@")),
+								email: req.param('user'),
+								enabled: true,
+								planData: "standard",
+								settings: ""
+							});
+							profId = usersRef.key;
+						}
+						if(profId != "") {
+							var prefRef = rootRef.child('Preferences');
+							var dataRef = prefRef.push({
+								profileID: profId,
+								appCode: req.param('prefappcode').toUpperCase(),
+								accessCode: "RW",
+								prefData: new Buffer("{}", "utf8").toString('base64');,
+								accessDateTime = (new Date()).getTime()
+							});
+							res.status(200).send('New Pref-Key Generated for: ' + req.param('user') + ' <br/>\nNew Profile: ' + newProf + '<br/>\Pref Key: ' + dataRef.key);
+						} else {
+							res.status(200).send('Error Processing');
+						}
+					});
+				}).catch(function(error) {
+					console.error("PS Auth Error: " + error.message);
+					res.status(200).send('Error Processing');
+				});
+			} else {
+				res.status(200).send('Invalid user format or missing prefappcode for this app');
+			}
 		} else {
 			res.status(200).send('Invalid app or key');
 		}
