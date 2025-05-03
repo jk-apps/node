@@ -407,7 +407,7 @@ app.post('/prefscription/:pkey', function(req, res) {
 				var data = snapshot.val();
 				if(data.accessCode == "RW") {
 					if(data.appCode == req.param('appCode')) {
-						data.prefData = req.body;
+						data.prefData = req.body.toString();
 						data.accessDateTime = (new Date()).getTime();
 						var usrRecRef = profRef.child(data.profileId);
 						usrRecRef.once('value',function(pSnapshot) {
