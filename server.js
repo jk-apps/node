@@ -41,8 +41,9 @@ app.use(function(req, res, next) {
     next();
 });
 app.use(timeout('240s'));
-app.use(express.urlencoded());
-app.use(express.bodyParser());
+app.use(express.urlencoded()); // For x-www-form-urlencoded
+app.use(express.bodyParser()); // For json
+app.use(express.text());       // For text/plain
 app.use(haltOnTimedout);
 
 // ---- TextBin Instance ------
@@ -407,7 +408,7 @@ app.post('/prefscription/:pkey', function(req, res) {
 				var data = snapshot.val();
 				if(data.accessCode == "RW") {
 					if(data.appCode == req.param('appCode')) {
-						data.prefData = req.rawBody;
+						data.prefData = req.body;
 						data.accessDateTime = (new Date()).getTime();
 						var usrRecRef = profRef.child(data.profileId);
 						usrRecRef.once('value',function(pSnapshot) {
