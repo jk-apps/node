@@ -407,13 +407,13 @@ app.post('/prefscription/:pkey', function(req, res) {
 				var data = snapshot.val();
 				if(data.accessCode == "RW") {
 					if(data.appCode == req.param('appCode')) {
+						data.prefData = req.body;
+						data.accessDateTime = (new Date()).getTime();
 						var usrRecRef = profRef.child(data.profileId);
 						usrRecRef.once('value',function(pSnapshot) {
 							if(pSnapshot != null && pSnapshot.val() != null) {
 								 var usrData = pSnapshot.val();
 								 if(usrData.enabled) {
-								 	data.prefData = req.body;
-								 	data.accessDateTime = (new Date()).getTime();
 								 	recRef.set(data);
 								 	res.status(200).send('{"success":"true"}');
 								 } else {
