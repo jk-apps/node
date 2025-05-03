@@ -1,4 +1,5 @@
 var express = require('express');
+var bodyParser = require('body-parser');
 var firebase = require('firebase');
 var cors = require('cors');	
 var rp = require('request-promise-native');
@@ -41,9 +42,9 @@ app.use(function(req, res, next) {
     next();
 });
 app.use(timeout('240s'));
-app.use(express.urlencoded()); // For x-www-form-urlencoded
-app.use(express.bodyParser()); // For json
-app.use(express.text());       // For text/plain
+app.use(bodyParser.urlencoded()); // For x-www-form-urlencoded
+app.use(bodyParser.json());       // For json
+app.use(bodyParser.text());       // For text/plain
 app.use(haltOnTimedout);
 
 // ---- TextBin Instance ------
