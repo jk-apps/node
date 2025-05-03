@@ -397,7 +397,7 @@ app.get('/prefscription/:pkey', function(req, res) {
 app.post('/prefscription/:pkey', function(req, res) {
 	res.setHeader('Content-Type', 'application/json');
 	var profKey = req.params.pkey;
-    
+    var rootRef = databasePS.ref();
 	authPS.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
 		var profRef = rootRef.child('Profiles');
 		var prefRef = rootRef.child('Preferences');
@@ -971,7 +971,7 @@ app.get('/signup', function(req, res) {
 						if(profId != "") {
 							var prefRef = rootRef.child('Preferences');
 							var dataRef = prefRef.push({
-								profileID: profId,
+								profileId: profId,
 								appCode: req.param('prefappcode').toUpperCase(),
 								accessCode: "RW",
 								prefData: new Buffer("{}", "utf8").toString('base64'),
