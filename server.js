@@ -6,7 +6,8 @@ var timeout = require('connect-timeout')
 
 var server_port = process.env.PORT || 5000;
 var signup_key = process.env.SIGNUPKEY;
-var finhub_api_key = process.env.FINHUBKEY;
+var finhub_api_key1 = process.env.FINHUBKEYS.split(",")[0];
+var finhub_api_key2 = process.env.FINHUBKEYS.split(",")[1];
 var stgProduct_url = process.env.STAGEPRODUCTURL;
 var authAccount = (""+process.env.AUTHACCOUNT).split(",");
 var pjsConfigObj = JSON.parse(process.env.PJSPROXYCONFIG);
@@ -170,7 +171,7 @@ app.post('/stockportfolio/quote', cors(spfCorsOptions), timeout('240s'), haltOnT
     	var symbolArr = req.param('symbols').split(",");
     	symbolArr.forEach(function(symbol) {
 			var quoteData = new Object();
-			rp("https://finnhub.io/api/v1/stock/profile2?symbol=" + symbol + "&token=" + finhub_api_key).then(function(parsedBody) {
+			rp("https://finnhub.io/api/v1/stock/profile2?symbol=" + symbol + "&token=" + finhub_api_key1).then(function(parsedBody) {
 				if(parsedBody != null && parsedBody != "") {
 					var parsedBodyObj = JSON.parse(parsedBody);
 					quoteData.symbol = symbol;
@@ -186,7 +187,7 @@ app.post('/stockportfolio/quote', cors(spfCorsOptions), timeout('240s'), haltOnT
 					} else {
 						quoteData.shortName = "NA";
 					}
-					return rp("https://finnhub.io/api/v1/quote?symbol=" + symbol + "&token=" + finhub_api_key);
+					return rp("https://finnhub.io/api/v1/quote?symbol=" + symbol + "&token=" + finhub_api_key1);
 				}
 			}).then(function(parsedBody2) {
 				if(parsedBody2 != null && parsedBody2 != "") {
@@ -231,6 +232,57 @@ app.get('/stockportfolio/latestversion', cors(spfCorsOptions), timeout('240s'), 
 	response.latestversion = process.env.SPFVER || "4.0.0";
 	response.versionmemo = process.env.SPFMEMO || "<b>N/A</b>";
 	res.status(200).send(response);
+});
+
+
+/*******************************
+ *  STOCKMONITOR Endpoints
+ ******************************/
+app.post('/stockmonitor/quote', function(req, res) {
+	if(req.param('symbols')) {
+    	var quoteDetails = new Array();
+    	var symbolArr = req.param('symbols').split(",");
+    	var fhApiKey = finhub_api_key1;
+    	symbolArr.forEach(function(symbol) {
+			var quoteData = new Object();
+			rp("https://finnhub.io/api/v1/quote?symbol=" + symbol + "&token=" + fhApiKey).then(function(parsedBody2) {
+				if(parsedBody2 != null && parsedBody2 != "") {
+					var parsedBodyObj2 = JSON.parse(parsedBody2);
+					if(parsedBodyObj2.c) {
+						quoteData.regularMarketPrice = parsedBodyObj2.c;
+						quoteData.regularMarketChange = parsedBodyObj2.d;
+						quoteData.regularMarketChangePercent = parsedBodyObj2.dp;
+						quoteData.time = parsedBodyObj2.t;
+						quoteDetails.push(quoteData);
+					} else {
+						quoteDetails.push(quoteData);
+					}
+					if(quoteDetails.length == symbolArr.length) {
+						var quoteResponse = new Object();
+						quoteResponse.result = quoteDetails;
+						var response = new Object();
+						response.quoteResponse = quoteResponse;
+						res.status(200).send(response);
+					}
+				}
+			}).catch(function(err){
+				console.log("Error fetching data: " + err);
+				quoteData.symbol = symbol;
+				quoteData.shortName = "NA";
+				quoteDetails.push(quoteData);
+				fhApiKey = finhub_api_key2;
+				if(quoteDetails.length == symbolArr.length) {
+					var quoteResponse = new Object();
+					quoteResponse.result = quoteDetails;
+					var response = new Object();
+					response.quoteResponse = quoteResponse;
+					res.status(200).send(response);
+				}
+			});
+    	});
+    } else {
+    	res.status(200).send('{"error":"Invalid Request"}');
+    }
 });
 
 /*******************************
