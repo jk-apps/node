@@ -246,29 +246,31 @@ app.post('/stockmonitor/quote', function(req, res) {
     	symbolArr.forEach(function(symbol) {
 			var quoteData = new Object();
 			rp("https://finnhub.io/api/v1/quote?symbol=" + symbol + "&token=" + fhApiKey).then(function(parsedBody2) {
+				quoteData.symbol = symbol;
 				if(parsedBody2 != null && parsedBody2 != "") {
 					var parsedBodyObj2 = JSON.parse(parsedBody2);
 					if(parsedBodyObj2.c) {
-						quoteData.regularMarketPrice = parsedBodyObj2.c;
-						quoteData.regularMarketChange = parsedBodyObj2.d;
-						quoteData.regularMarketChangePercent = parsedBodyObj2.dp;
+						quoteData.regMktPrice = parsedBodyObj2.c;
+						quoteData.regMktChange = parsedBodyObj2.d;
+						quoteData.regMktChangePercent = parsedBodyObj2.dp;
 						quoteData.time = parsedBodyObj2.t;
 						quoteDetails.push(quoteData);
 					} else {
 						quoteDetails.push(quoteData);
 					}
-					if(quoteDetails.length == symbolArr.length) {
-						var quoteResponse = new Object();
-						quoteResponse.result = quoteDetails;
-						var response = new Object();
-						response.quoteResponse = quoteResponse;
-						res.status(200).send(response);
-					}
+				} else {
+					quoteDetails.push(quoteData);
+				}
+				if(quoteDetails.length == symbolArr.length) {
+					var quoteResponse = new Object();
+					quoteResponse.result = quoteDetails;
+					var response = new Object();
+					response.quoteResponse = quoteResponse;
+					res.status(200).send(response);
 				}
 			}).catch(function(err){
 				console.log("Error fetching data: " + err);
 				quoteData.symbol = symbol;
-				quoteData.shortName = "NA";
 				quoteDetails.push(quoteData);
 				fhApiKey = finhub_api_key2;
 				if(quoteDetails.length == symbolArr.length) {
