@@ -338,7 +338,10 @@ app.post('/stockmonitor/news', function(req, res) {
 				var items = [];
 				if(jsonObj.rss && jsonObj.rss.channel) {
 					items = jsonObj.rss.channel.item;
-				}				
+				} else {
+					console.log(resBody);
+					console.log(JSON.stringify(jsonObj));
+				}			
 				if (!Array.isArray(items)) {
 					items = [items];
 				}
