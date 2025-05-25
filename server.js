@@ -295,7 +295,7 @@ app.post('/stockmonitor/search', function(req, res) {
 			if(resBody != null && resBody != "") {
 				var resBodyObj = JSON.parse(resBody);
 				if(resBodyObj.ResultSet && resBodyObj.ResultSet.Result) {
-					for(var i=0; i<resBodyObj.ResultSet.Result.length) {
+					for(var i=0; i<resBodyObj.ResultSet.Result.length; i++) {
 						var rec = resBodyObj.ResultSet.Result[i];
 						if(rec.type == "S") {
 							var searchData = new Object();
