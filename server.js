@@ -291,7 +291,14 @@ app.post('/stockmonitor/quote', function(req, res) {
 app.post('/stockmonitor/search', function(req, res) {
 	if(req.param('query') && req.param('pkey')) {
     	var searchDetails = new Array();
-		rp("https://s.yimg.com/xb/v6/finance/autocomplete?lang=en-US&query=" + req.param('query') + "&format=json").then(function(resBody) {
+    	var options = {
+          uri: "https://s.yimg.com/xb/v6/finance/autocomplete?lang=en-US&query=" + req.param('query') + "&format=json",
+          method: 'GET',
+          headers: {
+            'User-Agent': 'curl/7.03.6'
+          }
+        };
+		rp(options).then(function(resBody) {
 			if(resBody != null && resBody != "") {
 				var resBodyObj = JSON.parse(resBody);
 				if(resBodyObj.ResultSet && resBodyObj.ResultSet.Result) {
@@ -332,7 +339,14 @@ app.post('/stockmonitor/news', function(req, res) {
 			if(limit > 15) limit = 15;
 		} catch(e) {limit = 5;}
     	var newsDetails = new Array();
-		rp("https://feeds.finance.yahoo.com/rss/2.0/headline?s=" + req.param('symbols')).then(function(resBody) {
+    	var options = {
+          uri: "https://feeds.finance.yahoo.com/rss/2.0/headline?s=" + req.param('symbols'),
+          method: 'GET',
+          headers: {
+            'User-Agent': 'curl/7.03.6'
+          }
+        };
+		rp(options).then(function(resBody) {
 			console.log("resBody --> "+resBody);
 			if(resBody != null && resBody != "" && parser.validate(resBody) === true) {
 				var jsonObj = parser.parse(resBody, {ignoreAttributes: false,attributeNamePrefix: "@_"});
