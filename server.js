@@ -336,7 +336,6 @@ app.post('/stockmonitor/news', function(req, res) {
 			if(resBody != null && resBody != "" && parser.validate(resBody) === true) {
 				var jsonObj = parser.parse(resBody, {ignoreAttributes: false,attributeNamePrefix: "@_"});
 				var items = [];
-				console.log(resBody);
 				console.log(JSON.stringify(jsonObj));
 				if(jsonObj.rss && jsonObj.rss.channel) {
 					items = jsonObj.rss.channel.item;
@@ -353,6 +352,7 @@ app.post('/stockmonitor/news', function(req, res) {
 					};
 				});
 			}
+			console.log(resBody);
 			var newsResponse = new Object();
 			newsResponse.results = newsDetails;
 			var response = new Object();
