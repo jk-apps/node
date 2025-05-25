@@ -333,6 +333,7 @@ app.post('/stockmonitor/news', function(req, res) {
 		} catch(e) {limit = 5;}
     	var newsDetails = new Array();
 		rp("https://feeds.finance.yahoo.com/rss/2.0/headline?s=" + req.param('symbols')).then(function(resBody) {
+			console.log("resBody --> "+resBody);
 			if(resBody != null && resBody != "" && parser.validate(resBody) === true) {
 				var jsonObj = parser.parse(resBody, {ignoreAttributes: false,attributeNamePrefix: "@_"});
 				var items = [];
@@ -352,14 +353,13 @@ app.post('/stockmonitor/news', function(req, res) {
 					};
 				});
 			}
-			console.log(resBody);
 			var newsResponse = new Object();
 			newsResponse.results = newsDetails;
 			var response = new Object();
 			response.newsResponse = newsResponse;
 			res.status(200).send(response);
 		}).catch(function(err){
-			console.log("Error fetching autocomplete search: " + err);			
+			console.log("Error fetching news search: " + err);			
 			var newsResponse = new Object();
 			newsResponse.results = newsDetails;
 			var response = new Object();
