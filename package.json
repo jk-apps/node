@@ -15,6 +15,7 @@
         "cors": "2.8.x",
         "request": "2.34.x",
         "connect-timeout": "1.9.x",
+        "fast-xml-parser": "5.2.x",
         "request-promise-native": "1.x.x"
     }
 }

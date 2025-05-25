@@ -2,7 +2,8 @@ var express = require('express');
 var firebase = require('firebase');
 var cors = require('cors');	
 var rp = require('request-promise-native');
-var timeout = require('connect-timeout')
+var timeout = require('connect-timeout');
+var parser = require('fast-xml-parser');
 
 var server_port = process.env.PORT || 5000;
 var signup_key = process.env.SIGNUPKEY;
@@ -239,7 +240,7 @@ app.get('/stockportfolio/latestversion', cors(spfCorsOptions), timeout('240s'), 
  *  STOCKMONITOR Endpoints
  ******************************/
 app.post('/stockmonitor/quote', function(req, res) {
-	if(req.param('symbols')) {
+	if(req.param('symbols') && req.param('pkey')) {
     	var quoteDetails = new Array();
     	var symbolArr = req.param('symbols').split(",");
     	var fhApiKey = finhub_api_key1;
@@ -282,6 +283,87 @@ app.post('/stockmonitor/quote', function(req, res) {
 				}
 			});
     	});
+    } else {
+    	res.status(200).send('{"error":"Invalid Request"}');
+    }
+});
+
+app.post('/stockmonitor/search', function(req, res) {
+	if(req.param('query') && req.param('pkey')) {
+    	var searchDetails = new Array();
+		rp("https://s.yimg.com/xb/v6/finance/autocomplete?lang=en-US&query=" + req.param('query') + "&format=json").then(function(resBody) {
+			if(resBody != null && resBody != "") {
+				var resBodyObj = JSON.parse(resBody);
+				if(resBodyObj.ResultSet && resBodyObj.ResultSet.Result) {
+					for(var i=0; i<resBodyObj.ResultSet.Result.length) {
+						var rec = resBodyObj.ResultSet.Result[i];
+						if(rec.type == "S") {
+							var searchData = new Object();
+							searchData.symbol = rec.symbol;
+							searchData.name = rec.name;
+							searchDetails.push(searchData);
+						}
+					}
+				}
+			}
+			var searchResponse = new Object();
+			searchResponse.results = searchDetails;
+			var response = new Object();
+			response.searchResponse = searchResponse;
+			res.status(200).send(response);
+		}).catch(function(err){
+			console.log("Error fetching autocomplete search: " + err);			
+			var searchResponse = new Object();
+			searchResponse.results = searchDetails;
+			var response = new Object();
+			response.searchResponse = searchResponse;
+			res.status(200).send(response);
+		});
+    } else {
+    	res.status(200).send('{"error":"Invalid Request"}');
+    }
+});
+
+app.post('/stockmonitor/news', function(req, res) {
+	if(req.param('symbols') && req.param('limit') && req.param('pkey')) {
+		var limit = 5;
+		try {
+			limit = parseInt(req.param('limit'));
+			if(limit > 15) limit = 15;
+		} catch(e) {limit = 5;}
+    	var newsDetails = new Array();
+		rp("https://feeds.finance.yahoo.com/rss/2.0/headline?s=" + req.param('symbols')).then(function(resBody) {
+			if(resBody != null && resBody != "" && parser.validate(resBody) === true) {
+				var jsonObj = parser.parse(resBody, {ignoreAttributes: false,attributeNamePrefix: "@_"});
+				var items = [];
+				if(jsonObj.rss && jsonObj.rss.channel) {
+					items = jsonObj.rss.channel.item;
+				}				
+				if (!Array.isArray(items)) {
+					items = [items];
+				}
+				newsDetails = items.map(function(item) {
+					return {
+						title: item.title,
+						link: item.link,
+						pubDate: item.pubDate,
+						description: item.description
+					};
+				});
+			}
+			var newsResponse = new Object();
+			newsResponse.results = newsDetails;
+			var response = new Object();
+			response.newsResponse = newsResponse;
+			res.status(200).send(response);
+		}).catch(function(err){
+			console.log("Error fetching autocomplete search: " + err);			
+			var newsResponse = new Object();
+			newsResponse.results = newsDetails;
+			var response = new Object();
+			response.newsResponse = newsResponse;
+			res.status(200).send(response);
+		});
     } else {
     	res.status(200).send('{"error":"Invalid Request"}');
     }
