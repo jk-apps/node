@@ -14,6 +14,7 @@ var authAccount = (""+process.env.AUTHACCOUNT).split(",");
 var pjsConfigObj = JSON.parse(process.env.PJSPROXYCONFIG);
 var bopisConfigObj = JSON.parse(process.env.BOPISPROXYCONFIG);
 var spfWhitelist = (""+process.env.SPFCORS).split("\|");
+var msieUserAgents = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)~Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0)~Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)~Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)~Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko".split("~");
 
 var app = express();
 
@@ -291,11 +292,12 @@ app.post('/stockmonitor/quote', function(req, res) {
 app.post('/stockmonitor/search', function(req, res) {
 	if(req.param('query') && req.param('pkey')) {
     	var searchDetails = new Array();
+    	var usrAgnt = msieUserAgents[Math.floor(Math.random() * 5)];
     	var options = {
           uri: "https://s.yimg.com/xb/v6/finance/autocomplete?lang=en-US&query=" + req.param('query') + "&format=json",
           method: 'GET',
           headers: {
-            'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;'
+            'User-Agent': usrAgnt
           }
         };
 		rp(options).then(function(resBody) {
@@ -334,28 +336,31 @@ app.post('/stockmonitor/search', function(req, res) {
 app.post('/stockmonitor/news', function(req, res) {
 	if(req.param('symbols') && req.param('limit') && req.param('pkey')) {
 		var limit = 5;
+		var usrAgnt = msieUserAgents[Math.floor(Math.random() * 5)];
 		try {
 			limit = parseInt(req.param('limit'));
-			if(limit > 15) limit = 15;
+			if(limit > 20) limit = 20;
 		} catch(e) {limit = 5;}
     	var newsDetails = new Array();
     	var options = {
           uri: "https://feeds.finance.yahoo.com/rss/2.0/headline?s=" + req.param('symbols'),
           method: 'GET',
           headers: {
-            'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;'
+            'User-Agent': usrAgnt
           }
         };
 		rp(options).then(function(resBody) {
 			if(resBody != null && resBody != "") {
 				var jsonObj = parser.parse(resBody, {ignoreAttributes: false,attributeNamePrefix: "@_"});
 				var items = [];
-				console.log(JSON.stringify(jsonObj));
 				if(jsonObj.rss && jsonObj.rss.channel) {
 					items = jsonObj.rss.channel.item;
-				}		
+				}
 				if (!Array.isArray(items)) {
 					items = [items];
+				}
+				if(items.length > limit) {
+					items = items.slice(0, limit);
 				}
 				newsDetails = items.map(function(item) {
 					return {
