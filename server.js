@@ -3,7 +3,7 @@ var firebase = require('firebase');
 var cors = require('cors');	
 var rp = require('request-promise-native');
 var timeout = require('connect-timeout');
-var parser = require('fast-xml-parser');
+var {XMLParser} = require('fast-xml-parser');
 
 var server_port = process.env.PORT || 5000;
 var signup_key = process.env.SIGNUPKEY;
@@ -347,9 +347,9 @@ app.post('/stockmonitor/news', function(req, res) {
           }
         };
 		rp(options).then(function(resBody) {
-			console.log("resBody --> "+resBody);
-			if(resBody != null && resBody != "" && parser.validate(resBody) === true) {
-				var jsonObj = parser.parse(resBody, {ignoreAttributes: false,attributeNamePrefix: "@_"});
+			var parser = new XMLParser({ignoreAttributes: false,attributeNamePrefix: "@_"});
+			if(resBody != null && resBody != "") {
+				var jsonObj = parser.parse(resBody);
 				var items = [];
 				console.log(JSON.stringify(jsonObj));
 				if(jsonObj.rss && jsonObj.rss.channel) {
