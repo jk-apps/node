@@ -295,7 +295,7 @@ app.post('/stockmonitor/search', function(req, res) {
           uri: "https://s.yimg.com/xb/v6/finance/autocomplete?lang=en-US&query=" + req.param('query') + "&format=json",
           method: 'GET',
           headers: {
-            'User-Agent': 'curl/7.03.6'
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:138.0) Gecko/20100101 Firefox/138.0'
           }
         };
 		rp(options).then(function(resBody) {
@@ -343,7 +343,7 @@ app.post('/stockmonitor/news', function(req, res) {
           uri: "https://feeds.finance.yahoo.com/rss/2.0/headline?s=" + req.param('symbols'),
           method: 'GET',
           headers: {
-            'User-Agent': 'curl/7.03.6'
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:138.0) Gecko/20100101 Firefox/138.0'
           }
         };
 		rp(options).then(function(resBody) {
