@@ -247,7 +247,15 @@ app.post('/stockmonitor/quote', function(req, res) {
     	var fhApiKey = finhub_api_key1;
     	symbolArr.forEach(function(symbol) {
 			var quoteData = new Object();
-			rp("https://finnhub.io/api/v1/quote?symbol=" + symbol + "&token=" + fhApiKey).then(function(parsedBody2) {
+			var usrAgnt = msieUserAgents[Math.floor(Math.random() * 5)];
+			var options = {
+			  uri: "https://finnhub.io/api/v1/quote?symbol=" + symbol + "&token=" + fhApiKey,
+			  method: 'GET',
+			  headers: {
+				'User-Agent': usrAgnt
+			  }
+			};
+			rp(options).then(function(parsedBody2) {
 				quoteData.symbol = symbol;
 				if(parsedBody2 != null && parsedBody2 != "") {
 					var parsedBodyObj2 = JSON.parse(parsedBody2);
