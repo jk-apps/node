@@ -266,6 +266,7 @@ app.post('/stockmonitor/quote', function(req, res) {
 						quoteData.time = parsedBodyObj2.t;
 						quoteDetails.push(quoteData);
 					} else {
+						quoteData.time = 0;
 						quoteDetails.push(quoteData);
 					}
 				} else {
