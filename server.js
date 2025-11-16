@@ -89,7 +89,6 @@ app.get('/textbin/:ownkey', function(req, res) {
 		var ownerRef = rootRef.child('Owners');
 		var clipsRef = rootRef.child('Clips');
 		var recRef = ownerRef.child(ownkey);
-		
 		recRef.once('value',function(snapshot) {
 			if(snapshot != null && snapshot.val() != null) {
 				var data = snapshot.val();
@@ -102,7 +101,7 @@ app.get('/textbin/:ownkey', function(req, res) {
 						snapshot.forEach(function (childSnap) {
 							var clip = childSnap.val();
 							clip.id = childSnap.key;
-							clip.data = new Buffer(clip.data, 'base64').toString("utf8");
+							clip.data = clip.data;
 							newArray.push(clip);
 						});
 						res.status(200).send('callbackClips({"clips":' + JSON.stringify(newArray) + ', "user":' + JSON.stringify(data) + '});');
@@ -119,16 +118,48 @@ app.get('/textbin/:ownkey', function(req, res) {
 		res.status(200).send('callbackClips({"error":"Access Denied"});');
 	});
 });
+app.get('/textbin/:ownkey/:clipid', function(req, res) {
+    var ownkey = req.params.ownkey;
+    authTB.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
+    	var rootRef = databaseTB.ref();
+		var ownerRef = rootRef.child('Owners');
+		var clipsRef = rootRef.child('Clips');
+		var recRef = ownerRef.child(ownkey);
+		recRef.once('value',function(snapshot) {
+			if(snapshot != null && snapshot.val() != null) {
+				var data = snapshot.val();
+				if(data.enabled) {
+					var clipRecs = clipsRef.child(ownkey);
+					var dataRef = clipRecs.child(req.params.clipid);
+					var newArray = new Array();
+					dataRef.once('value',function(cSnapshot) {
+						if(cSnapshot != null && cSnapshot.val() != null) {
+							var clip = childSnap.val();
+							clip.id = childSnap.key;
+							newArray.push(clip);
+						}
+					});
+					res.status(200).send('callbackClipEdit({"clips":' + JSON.stringify(newArray) + '});');
+				} else {
+					res.status(200).send('callbackClipEdit({"error":"Not Enabled"});');
+				}
+			} else {
+				res.status(200).send('callbackClipEdit({"error":"Not Found"});');
+			}
+		});
+	}).catch(function(error) {
+		console.error("TB Auth Error: " + error.message);
+		res.status(200).send('callbackClipEdit({"error":"Access Denied"});');
+	});
+});
 app.post('/textbin/:ownkey', function(req, res) {
     var ownkey = req.params.ownkey;
-    
 	authTB.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
 		var rootRef = databaseTB.ref();
 		var ownerRef = rootRef.child('Owners');
 		var clipsRef = rootRef.child('Clips');
-		
 		if(req.param('clipMesg')) {
-			var encClip = new Buffer(req.param('clipMesg'), "utf8").toString('base64');
+			var encClip = req.param('clipMesg');
 			var newData = {
 				"type" : "text",
 				"data": encClip,
@@ -156,6 +187,21 @@ app.post('/textbin/:ownkey', function(req, res) {
 			var dataRef = dataOwnRef.child(clipid);
 			dataRef.remove();
 			res.redirect('/textbin/'+ownkey);
+		} else if(req.param('updateClip') && req.param('clipId')) {
+			var clipid = req.param('clipId');
+			var dataOwnRef = clipsRef.child(ownkey);
+			var dataRef = dataOwnRef.child(clipid);
+			dataRef.once('value',function(cSnapshot) {
+				if(cSnapshot != null && cSnapshot.val() != null) {
+					 var clipData = cSnapshot.val();
+					 clipData.data = req.param('updateClip');
+					 clipData.modified = (new Date()).getTime() * -1;
+					 dataRef.set(clipData);
+					 res.redirect('/textbin/'+ownkey);
+				} else {
+					res.status(200).send('callbackClips({"error":"Not Updated"});');
+				}
+			});
 		}
 	}).catch(function(error) {
 		console.error("TB Auth Error: " + error.message);
@@ -297,7 +343,6 @@ app.post('/stockmonitor/quote', function(req, res) {
     	res.status(200).send('{"error":"Invalid Request"}');
     }
 });
-
 app.post('/stockmonitor/search', function(req, res) {
 	if(req.param('query') && req.param('pkey')) {
     	var searchDetails = new Array();
@@ -341,7 +386,6 @@ app.post('/stockmonitor/search', function(req, res) {
     	res.status(200).send('{"error":"Invalid Request"}');
     }
 });
-
 app.post('/stockmonitor/news', function(req, res) {
 	if(req.param('symbols') && req.param('limit') && req.param('pkey')) {
 		var limit = 5;
