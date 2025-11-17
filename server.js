@@ -83,6 +83,7 @@ var authPS = firebase.app('psapp').auth();
  *     TEXTBIN Endpoints
  ******************************/
 app.get('/textbin/:ownkey', function(req, res) {
+	res.setHeader('Content-Type', 'application/json');
     var ownkey = req.params.ownkey;
     authTB.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
     	var rootRef = databaseTB.ref();
@@ -119,6 +120,7 @@ app.get('/textbin/:ownkey', function(req, res) {
 	});
 });
 app.get('/textbin/:ownkey/:clipid', function(req, res) {
+	res.setHeader('Content-Type', 'application/json');
     var ownkey = req.params.ownkey;
     authTB.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
     	var rootRef = databaseTB.ref();
@@ -134,8 +136,8 @@ app.get('/textbin/:ownkey/:clipid', function(req, res) {
 					var newArray = new Array();
 					dataRef.once('value',function(cSnapshot) {
 						if(cSnapshot != null && cSnapshot.val() != null) {
-							var clip = childSnap.val();
-							clip.id = childSnap.key;
+							var clip = cSnapshot.val();
+							clip.id = cSnapshot.key;
 							newArray.push(clip);
 						}
 					});
@@ -153,6 +155,7 @@ app.get('/textbin/:ownkey/:clipid', function(req, res) {
 	});
 });
 app.post('/textbin/:ownkey', function(req, res) {
+	res.setHeader('Content-Type', 'application/json');
     var ownkey = req.params.ownkey;
 	authTB.signInWithEmailAndPassword(authAccount[0], authAccount[1]).then(function(user) {
 		var rootRef = databaseTB.ref();
@@ -287,6 +290,7 @@ app.get('/stockportfolio/latestversion', cors(spfCorsOptions), timeout('240s'), 
  *  STOCKMONITOR Endpoints
  ******************************/
 app.post('/stockmonitor/quote', function(req, res) {
+	res.setHeader('Content-Type', 'application/json');
 	if(req.param('symbols') && req.param('pkey')) {
     	var quoteDetails = new Array();
     	var symbolArr = req.param('symbols').split(",");
@@ -344,6 +348,7 @@ app.post('/stockmonitor/quote', function(req, res) {
     }
 });
 app.post('/stockmonitor/search', function(req, res) {
+	res.setHeader('Content-Type', 'application/json');
 	if(req.param('query') && req.param('pkey')) {
     	var searchDetails = new Array();
     	var usrAgnt = msieUserAgents[Math.floor(Math.random() * 5)];
@@ -387,6 +392,7 @@ app.post('/stockmonitor/search', function(req, res) {
     }
 });
 app.post('/stockmonitor/news', function(req, res) {
+	res.setHeader('Content-Type', 'application/json');
 	if(req.param('symbols') && req.param('limit') && req.param('pkey')) {
 		var limit = 5;
 		var usrAgnt = msieUserAgents[Math.floor(Math.random() * 5)];
