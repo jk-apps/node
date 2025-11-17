@@ -135,12 +135,10 @@ app.get('/textbin/:ownkey/:clipid', function(req, res) {
 					var dataRef = clipRecs.child(req.params.clipid);
 					var newArray = new Array();
 					dataRef.once('value',function(cSnapshot) {
-						console.log(cSnapshot);
 						if(cSnapshot != null && cSnapshot.val() != null) {
 							var clip = cSnapshot.val();
 							clip.id = cSnapshot.key;
 							newArray.push(clip);
-							console.log(clip);
 							res.status(200).send('callbackClipEdit({"clips":' + JSON.stringify(newArray) + '});');
 						}
 					});
