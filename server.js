@@ -133,6 +133,7 @@ app.get('/textbin/:ownkey/:clipid', function(req, res) {
 				if(data.enabled) {
 					var clipRecs = clipsRef.child(ownkey);
 					var dataRef = clipRecs.child(req.params.clipid);
+					console.log(dataRef);
 					var newArray = new Array();
 					dataRef.once('value',function(cSnapshot) {
 						if(cSnapshot != null && cSnapshot.val() != null) {
